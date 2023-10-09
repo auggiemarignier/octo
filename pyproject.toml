@@ -6,8 +6,12 @@ authors = ["auggiemarignier <augustin.marignier@anu.edu.au>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.9"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.2"
+black = "^23.9.1"
+flake8 = "^6.1.0"
 
 [build-system]
 requires = ["poetry-core"]
