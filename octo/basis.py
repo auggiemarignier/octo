@@ -1,16 +1,15 @@
 from abc import ABCMeta, abstractmethod
 import numpy as np
+from scipy.fft import dct
 
 
 class BaseBasis(metaclass=ABCMeta):
     @abstractmethod
-    def __init__(self, N: int, M: int) -> None:
+    def __init__(self, N: int) -> None:
         """
-        N: number of unknowns
-        M: number of measurements
+        N: number of basis functions
         """
         self.N = N
-        self.M = M
         self.jacobian = None
         self.create_basis()
 
@@ -24,14 +23,14 @@ class BaseBasis(metaclass=ABCMeta):
 
 
 class CosineBasis(BaseBasis):
-    def __init__(self, N: int, M: int) -> None:
-        super().__init__(N, M)
+    def __init__(self, N: int) -> None:
+        super().__init__(N)
+        self.resolution = N  # number of points to evaluate the basis at
 
     def create_basis(self) -> None:
-        self.basis = np.zeros((self.M, self.N))
-        for i in range(self.M):
-            for j in range(self.N):
-                self.basis[i, j] = np.cos(2 * np.pi * i * j / self.N)
+        self.basis = np.zeros((self.N, self.resolution))
+        for i in range(self.N):
+            self.basis[i, :] = dct(np.eye(self.resolution)[i], type=2, norm="ortho")
 
     def compute_jacobian(self, forward) -> None:
         self.jacobian = np.array([[forward(0.0)], [forward(1.0)]])
@@ -39,12 +38,12 @@ class CosineBasis(BaseBasis):
 
 
 class PixelBasis(BaseBasis):
-    def __init__(self, N: int, M: int) -> None:
-        super().__init__(N, M)
+    def __init__(self, N: int) -> None:
+        super().__init__(N)
 
     def create_basis(self) -> None:
-        self.basis = np.zeros((self.M, self.N))
-        for i in range(self.M):
+        self.basis = np.zeros((self.N, self.N))
+        for i in range(self.N):
             for j in range(self.N):
                 self.basis[i, j] = 1 if i == j else 0
 
