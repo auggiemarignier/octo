@@ -27,6 +27,20 @@ def _is_othornomal_basis(basis_matrix):
             assert np.isclose(dot_product, expected), f"{i,j}"
 
 
+def test_ravel_unravel(Nx, Ny):
+    from octo.basis import _unravel, _reravel
+    from numpy.random import default_rng
+
+    rng = default_rng(0)
+
+    # The matrix that gets unravelled is the outer product of 2 1D basis
+    # each 1D basis has N^2 elements, so the outer product has shape Nx^2 x Ny^2
+    basis_matrix = rng.random((Nx * Nx, Ny * Ny))
+    unraveled = _unravel(basis_matrix, Nx, Ny)
+    reraveled = _reravel(unraveled, Nx, Ny)
+    assert np.allclose(basis_matrix, reraveled)
+
+
 def test_cosine_basis_implementations(N):
     res = 10000
     b1 = CosineBasis(N, res, method="idct")
@@ -41,13 +55,14 @@ def test_1D_basis_orthonormal(basis, N):
 
 
 @pytest.mark.parametrize("basis", [PixelBasis2D, CosineBasis2D])
-def test_2d_basis_orthonormal(basis, Nx, Ny):
+def test_2D_basis_orthonormal(basis, Nx, Ny):
     _basis = basis(Nx, Ny)
     _is_othornomal_basis(_basis.basis)
 
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
+    from octo.basis import _reravel
 
     _N = 10
     cosine_basis = CosineBasis(_N, 100)
@@ -61,13 +76,13 @@ if __name__ == "__main__":
     plt.show()
 
     _Nx = 10
-    _Ny = 5
+    _Ny = 10
     cosine_basis = CosineBasis2D(_Nx, _Ny)
     basis_matrix = cosine_basis.basis
-    plt.imshow(basis_matrix)
+    plt.imshow(_reravel(basis_matrix, _Nx, _Ny))
     plt.show()
 
     pixel_basis = PixelBasis2D(_Nx, _Ny)
     basis_matrix = pixel_basis.basis
-    plt.imshow(basis_matrix)
+    plt.imshow(_reravel(basis_matrix, _Nx, _Ny))
     plt.show()

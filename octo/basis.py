@@ -119,3 +119,17 @@ def _unravel(basis_matrix: np.ndarray, nx: int, ny: int) -> np.ndarray:
                 i * nx : (i + 1) * nx, j * ny : (j + 1) * ny
             ].flatten()
     return unraveled
+
+
+def _reravel(basis_matrix: np.ndarray, nx: int, ny: int) -> np.ndarray:
+    """
+    The inverse of _unravel
+    """
+    reraveled = np.zeros((nx * nx, ny * ny))
+    for i in range(nx):  # row
+        for j in range(ny):  # column
+            k = i * ny + j
+            reraveled[i * nx : (i + 1) * nx, j * ny : (j + 1) * ny] = basis_matrix[
+                k, :
+            ].reshape((nx, ny))
+    return reraveled
