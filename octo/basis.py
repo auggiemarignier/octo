@@ -25,7 +25,7 @@ class CosineBasis(BaseBasis):
     def __init__(self, N: int, resolution: int = None, method="idct") -> None:
         super().__init__(N)
         self.resolution = (
-            2 * N if resolution is None else resolution
+            N if resolution is None else resolution
         )  # number of points per cycle [0, 2pi)
 
         if method not in ["idct", "cos"]:
@@ -68,7 +68,7 @@ class CosineBasis2D(BaseBasis):
     def create_basis(self) -> None:
         Bx = CosineBasis(self.Nx)
         By = CosineBasis(self.Ny)
-        self.basis = np.outer(Bx.basis, By.basis)
+        self.basis = _unravel(np.outer(Bx.basis, By.basis), self.Nx, self.Ny)
 
     def compute_jacobian(self, forward) -> None:
         pass
@@ -99,18 +99,23 @@ class PixelBasis2D(BaseBasis):
     def create_basis(self) -> None:
         Bx = PixelBasis(self.Nx)
         By = PixelBasis(self.Ny)
-        self.basis = self._unravel(np.outer(Bx.basis, By.basis))
+        self.basis = _unravel(np.outer(Bx.basis, By.basis), self.Nx, self.Ny)
 
     def compute_jacobian(self, forward) -> None:
         pass
 
-    def _unravel(self, basis_matrix: np.ndarray) -> np.ndarray:
-        nx, ny = self.Nx, self.Ny
-        unraveled = np.zeros((nx * ny, nx * ny))
-        for i in range(nx):  # row
-            for j in range(ny):  # column
-                k = i * ny + j
-                unraveled[k, :] = basis_matrix[
-                    i * nx : (i + 1) * nx, j * ny : (j + 1) * ny
-                ].flatten()
-        return unraveled
+
+def _unravel(basis_matrix: np.ndarray, nx: int, ny: int) -> np.ndarray:
+    """
+    Combining 2 1D basis classes by taking the outer product of their basis
+    creates a matrix of 2D basis functions. This function unravels that matrix
+    such that the 2D basis functions are flattened into a row vector.
+    """
+    unraveled = np.zeros((nx * ny, nx * ny))
+    for i in range(nx):  # row
+        for j in range(ny):  # column
+            k = i * ny + j
+            unraveled[k, :] = basis_matrix[
+                i * nx : (i + 1) * nx, j * ny : (j + 1) * ny
+            ].flatten()
+    return unraveled
