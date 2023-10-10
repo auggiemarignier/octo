@@ -105,12 +105,12 @@ class PixelBasis2D(BaseBasis):
         pass
 
     def _unravel(self, basis_matrix: np.ndarray) -> np.ndarray:
-        n = int(np.sqrt(self.N))
-        unraveled = np.zeros((n * n, n * n))
-        for i in range(n):
-            for j in range(n):
-                k = i * n + j
+        nx, ny = self.Nx, self.Ny
+        unraveled = np.zeros((nx * ny, nx * ny))
+        for i in range(nx):  # row
+            for j in range(ny):  # column
+                k = i * ny + j
                 unraveled[k, :] = basis_matrix[
-                    i * n : (i + 1) * n, j * n : (j + 1) * n
+                    i * nx : (i + 1) * nx, j * ny : (j + 1) * ny
                 ].flatten()
         return unraveled

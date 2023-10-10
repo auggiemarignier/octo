@@ -45,7 +45,7 @@ def test_cosine2d_basis_orthonormal():
 
 def test_pixel2d_basis_orthonormal():
     Nx = 10
-    Ny = 10
+    Ny = 5
     pixel2d_basis = PixelBasis2D(Nx, Ny)
     basis_matrix = pixel2d_basis.basis
     _is_othornomal_basis(basis_matrix)
