@@ -23,3 +23,16 @@ def test_cosine_basis_orthonormal(method):
                 assert np.isclose(dot_product, 1.0), f"{i,j}"
             else:
                 assert np.isclose(dot_product, 0.0), f"{i,j}"
+
+
+def test_pixel_basis_orthonormal():
+    N = 10
+    pixel_basis = PixelBasis(N)
+    basis_matrix = pixel_basis.basis
+    for i in range(N):
+        for j in range(N):
+            dot_product = np.dot(basis_matrix[i, :], basis_matrix[j, :])
+            if i == j:
+                assert np.isclose(dot_product, 1.0), f"{i,j}"
+            else:
+                assert np.isclose(dot_product, 0.0), f"{i,j}"

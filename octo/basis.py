@@ -57,12 +57,10 @@ class CosineBasis(BaseBasis):
 class PixelBasis(BaseBasis):
     def __init__(self, N: int) -> None:
         super().__init__(N)
+        self.create_basis()
 
     def create_basis(self) -> None:
-        self.basis = np.zeros((self.N, self.N))
-        for i in range(self.N):
-            for j in range(self.N):
-                self.basis[i, j] = 1 if i == j else 0
+        self.basis = np.eye(self.N)
 
     def compute_jacobian(self, forward) -> None:
         self.jacobian = np.array([[forward(0.0)], [forward(1.0)]])
