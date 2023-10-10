@@ -42,9 +42,8 @@ def test_ravel_unravel(Nx, Ny):
 
 
 def test_cosine_basis_implementations(N):
-    res = 10000
-    b1 = CosineBasis(N, res, method="idct")
-    b2 = CosineBasis(N, res, method="cos")
+    b1 = CosineBasis(N, method="idct")
+    b2 = CosineBasis(N, method="cos")
     assert np.allclose(b1.basis, b2.basis)
 
 
@@ -65,7 +64,7 @@ if __name__ == "__main__":
     from octo.basis import _reravel
 
     _N = 10
-    cosine_basis = CosineBasis(_N, 100)
+    cosine_basis = CosineBasis(_N)
     basis_matrix = cosine_basis.basis
     plt.plot(basis_matrix.T)
     plt.show()

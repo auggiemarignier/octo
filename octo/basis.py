@@ -22,11 +22,8 @@ class BaseBasis(metaclass=ABCMeta):
 
 
 class CosineBasis(BaseBasis):
-    def __init__(self, N: int, resolution: int = None, method="idct") -> None:
+    def __init__(self, N: int, method="idct") -> None:
         super().__init__(N)
-        self.resolution = (
-            N if resolution is None else resolution
-        )  # number of points per cycle [0, pi)
 
         if method not in ["idct", "cos"]:
             raise ValueError("method must be one of 'idct', 'cos'")
@@ -40,20 +37,27 @@ class CosineBasis(BaseBasis):
         self.jacobian = np.array([[forward(0.0)], [forward(1.0)]])
         return self.jacobian
 
-    def _create_basis(self) -> None:
-        self.basis = np.zeros((self.N, self.resolution))
+    def _create_basis(self, _resolution: int = None) -> None:
+        """
+        The _resolution argument is included for testing purposes. It is not
+        intended to be used by the user. It represents the number of points in
+        the range [0, pi) that the basis functions are evaluated at.
+        """
+        if _resolution is None:
+            _resolution = self.N
+        self.basis = np.zeros((self.N, _resolution))
         for i in range(self.N):
-            self.basis[i, :] = self.method(i)
+            self.basis[i, :] = self.method(i, _resolution)
 
-    def _basis_from_idct(self, i) -> np.ndarray:
-        return idct(np.eye(self.resolution)[i, :], norm="ortho")
+    def _basis_from_idct(self, i, _resolution) -> np.ndarray:
+        return idct(np.eye(_resolution)[i, :], norm="ortho")
 
-    def _basis_from_cos(self, i) -> np.ndarray:
-        norm = np.sqrt(self.resolution / 2)
+    def _basis_from_cos(self, i, _resolution) -> np.ndarray:
+        norm = np.sqrt(_resolution / 2)
         if i == 0:
             norm *= np.sqrt(2)
-        n = 2 * np.arange(self.resolution) + 1
-        return np.cos(i * np.pi * n / (2 * self.resolution)) / norm
+        n = 2 * np.arange(_resolution) + 1
+        return np.cos(i * np.pi * n / (2 * _resolution)) / norm
 
 
 class CosineBasis2D(BaseBasis):
