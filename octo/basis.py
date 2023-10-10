@@ -26,7 +26,7 @@ class CosineBasis(BaseBasis):
         super().__init__(N)
         self.resolution = (
             N if resolution is None else resolution
-        )  # number of points per cycle [0, 2pi)
+        )  # number of points per cycle [0, pi)
 
         if method not in ["idct", "cos"]:
             raise ValueError("method must be one of 'idct', 'cos'")
