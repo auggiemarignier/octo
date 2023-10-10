@@ -25,13 +25,19 @@ def test_basis_attribute(basis_class, N, M, expected_basis):
 def test_plot_cosine_basis_functions():
     import matplotlib.pyplot as plt
 
-    N = 10
-    res = 100
+    N = 20
+    res = 10000
     cosine_basis = CosineBasis(N, res)
     basis_matrix = cosine_basis.basis
+    b2 = np.zeros_like(basis_matrix)
     for i in range(N):
+        b2[i, :] = np.cos(i * np.linspace(0, np.pi, res)) / np.sqrt(res / 2)
+        if i == 0:
+            b2[i, :] /= np.sqrt(2)
         plt.plot(i + basis_matrix[i, :])
+        plt.plot(i + b2[i, :], ls="--")
     plt.show()
+    assert np.allclose(basis_matrix, b2, rtol=1e-3, atol=1e-8)
 
 
 def test_cosine_basis_orthonormal():
@@ -42,6 +48,6 @@ def test_cosine_basis_orthonormal():
         for j in range(N):
             dot_product = np.dot(basis_matrix[i, :], basis_matrix[j, :])
             if i == j:
-                assert np.isclose(dot_product, 1.0)
+                assert np.isclose(dot_product, 1.0), f"{i,j}"
             else:
-                assert np.isclose(dot_product, 0.0)
+                assert np.isclose(dot_product, 0.0), f"{i,j}"

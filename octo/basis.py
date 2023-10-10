@@ -31,9 +31,8 @@ class CosineBasis(BaseBasis):
 
     def create_basis(self) -> None:
         self.basis = np.zeros((self.N, self.resolution))
-        x = np.linspace(0, 2 * np.pi, self.resolution)
         for i in range(self.N):
-            self.basis[i, :] = np.cos(i * x / 2) / np.sqrt(self.resolution)
+            self.basis[i, :] = idct(np.eye(self.resolution)[i, :], norm="ortho")
 
     def compute_jacobian(self, forward) -> None:
         self.jacobian = np.array([[forward(0.0)], [forward(1.0)]])
