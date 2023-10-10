@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from octo.basis import CosineBasis, PixelBasis
+from octo.basis import CosineBasis, PixelBasis, CosineBasis2D, PixelBasis2D
 
 
 def _is_othornomal_basis(basis_matrix):
@@ -8,10 +8,8 @@ def _is_othornomal_basis(basis_matrix):
     for i in range(N):
         for j in range(N):
             dot_product = np.dot(basis_matrix[i, :], basis_matrix[j, :])
-            if i == j:
-                assert np.isclose(dot_product, 1.0), f"{i,j}"
-            else:
-                assert np.isclose(dot_product, 0.0), f"{i,j}"
+            expected = 1.0 if i == j else 0.0
+            assert np.isclose(dot_product, expected), f"{i,j}"
 
 
 def test_cosine_basis_implementations():
@@ -34,4 +32,20 @@ def test_pixel_basis_orthonormal():
     N = 10
     pixel_basis = PixelBasis(N)
     basis_matrix = pixel_basis.basis
+    _is_othornomal_basis(basis_matrix)
+
+
+def test_cosine2d_basis_orthonormal():
+    Nx = 10
+    Ny = 10
+    cosine2d_basis = CosineBasis2D(Nx, Ny)
+    basis_matrix = cosine2d_basis.basis
+    _is_othornomal_basis(basis_matrix)
+
+
+def test_pixel2d_basis_orthonormal():
+    Nx = 10
+    Ny = 10
+    pixel2d_basis = PixelBasis2D(Nx, Ny)
+    basis_matrix = pixel2d_basis.basis
     _is_othornomal_basis(basis_matrix)
