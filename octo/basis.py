@@ -49,11 +49,16 @@ class CosineBasis(BaseBasis):
         return idct(np.eye(self.resolution)[i, :], norm="ortho")
 
     def _basis_from_cos(self, i) -> np.ndarray:
-        x = np.linspace(0, np.pi, self.resolution)
         norm = np.sqrt(self.resolution / 2)
         if i == 0:
             norm *= np.sqrt(2)
-        return np.cos(i * x) / norm
+        c = np.array(
+            [
+                np.cos(i * (np.pi * (2 * n - 1)) / (2 * self.resolution))
+                for n in range(1, self.resolution + 1)
+            ]
+        )
+        return c / norm
 
 
 class PixelBasis(BaseBasis):
