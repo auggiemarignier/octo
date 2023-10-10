@@ -13,11 +13,11 @@ class BaseBasis(metaclass=ABCMeta):
         self.jacobian = None
 
     @abstractmethod
-    def create_basis(self) -> None:
+    def compute_jacobian(self, forward) -> None:
         pass
 
     @abstractmethod
-    def compute_jacobian(self, forward) -> None:
+    def _create_basis(self) -> None:
         pass
 
 
@@ -34,16 +34,16 @@ class CosineBasis(BaseBasis):
             self._basis_from_idct if method == "idct" else self._basis_from_cos
         )
 
-        self.create_basis()
-
-    def create_basis(self) -> None:
-        self.basis = np.zeros((self.N, self.resolution))
-        for i in range(self.N):
-            self.basis[i, :] = self.method(i)
+        self._create_basis()
 
     def compute_jacobian(self, forward) -> None:
         self.jacobian = np.array([[forward(0.0)], [forward(1.0)]])
         return self.jacobian
+
+    def _create_basis(self) -> None:
+        self.basis = np.zeros((self.N, self.resolution))
+        for i in range(self.N):
+            self.basis[i, :] = self.method(i)
 
     def _basis_from_idct(self, i) -> np.ndarray:
         return idct(np.eye(self.resolution)[i, :], norm="ortho")
@@ -63,28 +63,28 @@ class CosineBasis2D(BaseBasis):
         self.Nx = Nx
         self.Ny = Ny
         super().__init__(Nx * Ny)
-        self.create_basis()
-
-    def create_basis(self) -> None:
-        Bx = CosineBasis(self.Nx)
-        By = CosineBasis(self.Ny)
-        self.basis = _unravel(np.outer(Bx.basis, By.basis), self.Nx, self.Ny)
+        self._create_basis()
 
     def compute_jacobian(self, forward) -> None:
         pass
+
+    def _create_basis(self) -> None:
+        Bx = CosineBasis(self.Nx)
+        By = CosineBasis(self.Ny)
+        self.basis = _unravel(np.outer(Bx.basis, By.basis), self.Nx, self.Ny)
 
 
 class PixelBasis(BaseBasis):
     def __init__(self, N: int) -> None:
         super().__init__(N)
-        self.create_basis()
-
-    def create_basis(self) -> None:
-        self.basis = np.eye(self.N)
+        self._create_basis()
 
     def compute_jacobian(self, forward) -> None:
         self.jacobian = np.array([[forward(0.0)], [forward(1.0)]])
         return self.jacobian
+
+    def _create_basis(self) -> None:
+        self.basis = np.eye(self.N)
 
 
 class PixelBasis2D(BaseBasis):
@@ -94,15 +94,15 @@ class PixelBasis2D(BaseBasis):
         self.Nx = Nx
         self.Ny = Ny
         super().__init__(Nx * Ny)
-        self.create_basis()
-
-    def create_basis(self) -> None:
-        Bx = PixelBasis(self.Nx)
-        By = PixelBasis(self.Ny)
-        self.basis = _unravel(np.outer(Bx.basis, By.basis), self.Nx, self.Ny)
+        self._create_basis()
 
     def compute_jacobian(self, forward) -> None:
         pass
+
+    def _create_basis(self) -> None:
+        Bx = PixelBasis(self.Nx)
+        By = PixelBasis(self.Ny)
+        self.basis = _unravel(np.outer(Bx.basis, By.basis), self.Nx, self.Ny)
 
 
 def _unravel(basis_matrix: np.ndarray, nx: int, ny: int) -> np.ndarray:
