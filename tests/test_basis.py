@@ -44,3 +44,30 @@ def test_1D_basis_orthonormal(basis, N):
 def test_2d_basis_orthonormal(basis, Nx, Ny):
     _basis = basis(Nx, Ny)
     _is_othornomal_basis(_basis.basis)
+
+
+if __name__ == "__main__":
+    import matplotlib.pyplot as plt
+
+    _N = 10
+    cosine_basis = CosineBasis(_N, 100)
+    basis_matrix = cosine_basis.basis
+    plt.plot(basis_matrix.T)
+    plt.show()
+
+    pixel_basis = PixelBasis(_N)
+    basis_matrix = pixel_basis.basis
+    plt.plot(basis_matrix.T)
+    plt.show()
+
+    _Nx = 10
+    _Ny = 5
+    cosine_basis = CosineBasis2D(_Nx, _Ny)
+    basis_matrix = cosine_basis.basis
+    plt.imshow(basis_matrix)
+    plt.show()
+
+    pixel_basis = PixelBasis2D(_Nx, _Ny)
+    basis_matrix = pixel_basis.basis
+    plt.imshow(basis_matrix)
+    plt.show()
