@@ -99,7 +99,18 @@ class PixelBasis2D(BaseBasis):
     def create_basis(self) -> None:
         Bx = PixelBasis(self.Nx)
         By = PixelBasis(self.Ny)
-        self.basis = np.outer(Bx.basis, By.basis)
+        self.basis = self._unravel(np.outer(Bx.basis, By.basis))
 
     def compute_jacobian(self, forward) -> None:
         pass
+
+    def _unravel(self, basis_matrix: np.ndarray) -> np.ndarray:
+        n = int(np.sqrt(self.N))
+        unraveled = np.zeros((n * n, n * n))
+        for i in range(n):
+            for j in range(n):
+                k = i * n + j
+                unraveled[k, :] = basis_matrix[
+                    i * n : (i + 1) * n, j * n : (j + 1) * n
+                ].flatten()
+        return unraveled
