@@ -32,3 +32,16 @@ def test_plot_cosine_basis_functions():
     for i in range(N):
         plt.plot(i + basis_matrix[i, :])
     plt.show()
+
+
+def test_cosine_basis_orthonormal():
+    N = 10
+    cosine_basis = CosineBasis(N)
+    basis_matrix = cosine_basis.basis
+    for i in range(N):
+        for j in range(N):
+            dot_product = np.dot(basis_matrix[i, :], basis_matrix[j, :])
+            if i == j:
+                assert np.isclose(dot_product, 1.0)
+            else:
+                assert np.isclose(dot_product, 0.0)
