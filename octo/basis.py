@@ -52,13 +52,8 @@ class CosineBasis(BaseBasis):
         norm = np.sqrt(self.resolution / 2)
         if i == 0:
             norm *= np.sqrt(2)
-        c = np.array(
-            [
-                np.cos(i * (np.pi * (2 * n - 1)) / (2 * self.resolution))
-                for n in range(1, self.resolution + 1)
-            ]
-        )
-        return c / norm
+        n = 2 * np.arange(self.resolution) + 1
+        return np.cos(i * np.pi * n / (2 * self.resolution)) / norm
 
 
 class PixelBasis(BaseBasis):
