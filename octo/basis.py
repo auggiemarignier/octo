@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 import numpy as np
-from scipy.fft import dct
+from scipy.fft import idct
 
 
 class BaseBasis(metaclass=ABCMeta):
@@ -11,7 +11,6 @@ class BaseBasis(metaclass=ABCMeta):
         """
         self.N = N
         self.jacobian = None
-        self.create_basis()
 
     @abstractmethod
     def create_basis(self) -> None:
@@ -23,14 +22,18 @@ class BaseBasis(metaclass=ABCMeta):
 
 
 class CosineBasis(BaseBasis):
-    def __init__(self, N: int) -> None:
+    def __init__(self, N: int, resolution: int = None) -> None:
         super().__init__(N)
-        self.resolution = N  # number of points to evaluate the basis at
+        self.resolution = (
+            2 * N if resolution is None else resolution
+        )  # number of points per cycle [0, 2pi)
+        self.create_basis()
 
     def create_basis(self) -> None:
         self.basis = np.zeros((self.N, self.resolution))
+        x = np.linspace(0, 2 * np.pi, self.resolution)
         for i in range(self.N):
-            self.basis[i, :] = dct(np.eye(self.resolution)[i], type=2, norm="ortho")
+            self.basis[i, :] = np.cos(i * x / 2) / np.sqrt(self.resolution)
 
     def compute_jacobian(self, forward) -> None:
         self.jacobian = np.array([[forward(0.0)], [forward(1.0)]])
