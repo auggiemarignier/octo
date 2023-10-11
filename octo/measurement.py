@@ -51,7 +51,7 @@ class PathIntegral:
 
         x = np.arange(startx, endx + 1, step=np.sign(endx - startx))
         y = self._line_from_points((startx, starty), (endx, endy))(x)
-        path[x, y.astype(int)] = 1
+        path[x, np.round(y).astype(int)] = 1
         return path.ravel()
 
     def _line_from_points(self, start, end):
