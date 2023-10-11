@@ -12,8 +12,8 @@ class PathIntegral:
                 self.path_matrix = self.create_random_paths(npaths)
             else:  # create an empty path matrix
                 self.path_matrix = np.zeros((1, self.Nx * self.Ny))
-        else:  # clip path matrix to npaths if given
-            self.path_matrix = path_matrix[:npaths]
+        else:
+            self.path_matrix = path_matrix
 
     def __call__(self, X: np.ndarray) -> np.ndarray:
         """
