@@ -59,6 +59,32 @@ def test_2D_basis_orthonormal(basis, Nx, Ny):
     _is_othornomal_basis(_basis.basis)
 
 
+@pytest.mark.parametrize("basis", [PixelBasis, CosineBasis])
+def test_1D_basis_jacboian(basis, N):
+    ndata = 12
+
+    def _forward(X):
+        return np.eye(ndata, N).dot(X)
+
+    _basis = basis(N)
+    _basis.compute_jacobian(_forward)
+
+    assert _basis.jacobian.shape == (ndata, N)
+
+
+@pytest.mark.parametrize("basis", [PixelBasis2D, CosineBasis2D])
+def test_2D_basis_jacboian(basis, Nx, Ny):
+    ndata = 12
+
+    def _forward(X):
+        return np.eye(ndata, Nx * Ny).dot(X)
+
+    _basis = basis(Nx, Ny)
+    _basis.compute_jacobian(_forward)
+
+    assert _basis.jacobian.shape == (ndata, Nx * Ny)
+
+
 if __name__ == "__main__":
     _N = 10
     cosine_basis = CosineBasis(_N)

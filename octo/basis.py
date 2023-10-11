@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.fft import idct
+from typing import Callable
 
 
 class BaseBasis:
@@ -10,8 +11,12 @@ class BaseBasis:
         self.N = N
         self.jacobian = None
 
-    def compute_jacobian(self, forward) -> None:
-        pass
+    def compute_jacobian(self, forward: Callable) -> None:
+        """
+        forward is the measurment operator.
+        It should take a vector of length N or an array of shape (N, N).
+        """
+        self.jacobian = forward(self.basis)
 
     def _create_basis(self) -> None:
         pass
