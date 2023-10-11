@@ -17,10 +17,10 @@ class PathIntegral:
 
     def __call__(self, X: np.ndarray) -> np.ndarray:
         """
-        X is a 2D array of shape (N, N) representing the field
+        X is a 2D array of shape (Nx, Ny) representing the field
         over which we are integrating
         """
-        return self.path_matrix @ X
+        return self.path_matrix @ X.ravel()
 
     def plot(self):
         import matplotlib.pyplot as plt
