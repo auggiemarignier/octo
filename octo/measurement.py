@@ -3,7 +3,7 @@ import numpy as np
 
 class PathIntegral:
     def __init__(
-        self, Nx: int, Ny: int, path_matrix: np.ndarray = None, npaths: int = -1
+        self, Nx: int, Ny: int, path_matrix: np.ndarray = None, npaths: int = 0
     ) -> None:
         self.Nx = Nx
         self.Ny = Ny

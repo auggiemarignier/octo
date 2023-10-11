@@ -3,16 +3,26 @@ from octo.measurement import PathIntegral
 
 
 def test_pathintegral():
-    def field(pos):
-        x, y = pos
-        return np.sin(x) * np.cos(y)
+    import matplotlib.pyplot as plt
 
-    start = np.array([0, 0])
-    end = np.array([np.pi / 2, np.pi / 2])
-    num_steps = 100
+    N = 100
+    M = 50
 
-    pathintegral = PathIntegral(100, 50, npaths=5)
+    x = np.linspace(0, 2 * np.pi, M)
+    y = np.ones(N)
+
+    X, Y = np.meshgrid(x, y)
+    field = np.sin(X)
+    plt.imshow(field)
+    plt.show()
+
+    pathintegral = PathIntegral(N, M)
+    pathintegral.add_path((0, M // 4), (N - 1, M // 4))
     pathintegral.plot()
+
+    expected = np.array([np.sum(field[:, M // 4])])
+    actual = pathintegral(field)
+    assert np.allclose(expected, actual)
 
 
 def test_addingpaths():
