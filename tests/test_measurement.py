@@ -1,5 +1,6 @@
 import numpy as np
 from octo.measurement import PathIntegral
+import pytest
 
 
 def test_pathintegral():
@@ -37,3 +38,15 @@ def test_addingpaths():
 
     pathintegral.add_path(start, end)
     assert pathintegral.path_matrix.shape[0] == 2
+
+    with pytest.raises(ValueError):
+        pathintegral.add_path((100, 0), (0, 0))
+
+    with pytest.raises(ValueError):
+        pathintegral.add_path((0, 50), (0, 0))
+
+    with pytest.raises(ValueError):
+        pathintegral.add_path((0, 0), (100, 0))
+
+    with pytest.raises(ValueError):
+        pathintegral.add_path((0, 0), (0, 50))

@@ -32,7 +32,14 @@ class PathIntegral:
     def add_path(self, start, end):
         """
         adds a path to the path matrix
+        start and end are cooridinates in the reference frame of the array
+        i.e. start = (0,0) is the top left corner and end = (Nx-1, Ny-1) is the bottom right corner
         """
+        if np.any(np.array([start[0], end[0]]) >= self.Nx):
+            raise ValueError("startx and endx must be less than Nx")
+        if np.any(np.array([start[1], end[1]]) >= self.Ny):
+            raise ValueError("starty and endy must be less than Ny")
+
         if self.path_matrix.shape[0] == 1 and np.all(
             self.path_matrix == 0
         ):  # empty path matrix
