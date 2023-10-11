@@ -18,9 +18,10 @@ def test_pathintegral():
 
     pathintegral = PathIntegral(N, M)
     pathintegral.add_path((0, M // 4), (N - 1, M // 4))
+    pathintegral.add_path((N // 2, 0), (N // 2, M - 1))
     pathintegral.plot()
 
-    expected = np.array([np.sum(field[:, M // 4])])
+    expected = np.array([np.sum(field[:, M // 4]), np.sum(field[N // 2, :])])
     actual = pathintegral(field)
     assert np.allclose(expected, actual)
 

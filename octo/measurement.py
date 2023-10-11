@@ -49,6 +49,9 @@ class PathIntegral:
         startx, starty = start
         endx, endy = end
         path = np.zeros((self.Nx, self.Ny))
+        if startx == endx:  # vertical line
+            path[startx, np.arange(starty, endy + 1, step=np.sign(endy - starty))] = 1
+            return path
         x = np.arange(startx, endx + 1, step=np.sign(endx - startx))
         y = self._line_from_points((startx, starty), (endx, endy))(x)
         path[x, np.round(y).astype(int)] = 1
