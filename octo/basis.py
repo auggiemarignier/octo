@@ -33,6 +33,16 @@ class CosineBasis(BaseBasis):
 
         self._create_basis()
 
+    def plot(self):
+        import matplotlib.pyplot as plt
+
+        self._create_basis(_resolution=10 * self.N)
+        for i, basis in enumerate(self.basis):
+            plt.plot(i + basis)
+        plt.show()
+
+        self._create_basis()  # reset basis
+
     def compute_jacobian(self, forward) -> None:
         self.jacobian = np.array([[forward(0.0)], [forward(1.0)]])
         return self.jacobian
@@ -68,6 +78,23 @@ class CosineBasis2D(BaseBasis):
         self.Ny = Ny
         super().__init__(Nx * Ny)
         self._create_basis()
+
+    def plot(self):
+        import matplotlib.pyplot as plt
+
+        factor = 10
+        Bx = CosineBasis(self.Nx)
+        Bx._create_basis(_resolution=factor * self.Nx)
+        By = CosineBasis(self.Ny)
+        By._create_basis(_resolution=factor * self.Ny)
+        basis_matrix = np.outer(Bx.basis, By.basis)
+        plt.imshow(basis_matrix, cmap="RdBu")
+        for x in range(1, self.Nx):
+            plt.axvline(x * factor**2, color="k", ls="--")
+        for y in range(1, self.Ny):
+            plt.axhline(y * factor**2, color="k", ls="--")
+        plt.axis(False)
+        plt.show()
 
     def compute_jacobian(self, forward) -> None:
         pass

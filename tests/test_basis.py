@@ -65,9 +65,7 @@ if __name__ == "__main__":
 
     _N = 10
     cosine_basis = CosineBasis(_N)
-    basis_matrix = cosine_basis.basis
-    plt.plot(basis_matrix.T)
-    plt.show()
+    cosine_basis.plot()
 
     pixel_basis = PixelBasis(_N)
     basis_matrix = pixel_basis.basis
@@ -77,9 +75,7 @@ if __name__ == "__main__":
     _Nx = 10
     _Ny = 10
     cosine_basis = CosineBasis2D(_Nx, _Ny)
-    basis_matrix = cosine_basis.basis
-    plt.imshow(_reravel(basis_matrix, _Nx, _Ny))
-    plt.show()
+    cosine_basis.plot()
 
     pixel_basis = PixelBasis2D(_Nx, _Ny)
     basis_matrix = pixel_basis.basis
