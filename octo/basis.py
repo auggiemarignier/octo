@@ -1,10 +1,8 @@
-from abc import ABCMeta, abstractmethod
 import numpy as np
 from scipy.fft import idct
 
 
-class BaseBasis(metaclass=ABCMeta):
-    @abstractmethod
+class BaseBasis:
     def __init__(self, N: int) -> None:
         """
         N: number of basis functions
@@ -12,11 +10,9 @@ class BaseBasis(metaclass=ABCMeta):
         self.N = N
         self.jacobian = None
 
-    @abstractmethod
     def compute_jacobian(self, forward) -> None:
         pass
 
-    @abstractmethod
     def _create_basis(self) -> None:
         pass
 
@@ -42,10 +38,6 @@ class CosineBasis(BaseBasis):
         plt.show()
 
         self._create_basis()  # reset basis
-
-    def compute_jacobian(self, forward) -> None:
-        self.jacobian = np.array([[forward(0.0)], [forward(1.0)]])
-        return self.jacobian
 
     def _create_basis(self, _resolution: int = None) -> None:
         """
@@ -98,9 +90,6 @@ class CosineBasis2D(BaseBasis):
         plt.axis(False)
         plt.show()
 
-    def compute_jacobian(self, forward) -> None:
-        pass
-
     def _create_basis(self) -> None:
         Bx = CosineBasis(self.Nx)
         By = CosineBasis(self.Ny)
@@ -122,10 +111,6 @@ class PixelBasis(BaseBasis):
             plt.plot(x_fine, i + basis_fine)
 
         plt.show()
-
-    def compute_jacobian(self, forward) -> None:
-        self.jacobian = np.array([[forward(0.0)], [forward(1.0)]])
-        return self.jacobian
 
     def _create_basis(self) -> None:
         self.basis = np.eye(self.N)
@@ -154,9 +139,6 @@ class PixelBasis2D(BaseBasis):
             plt.axhline(y * self.Nx, color="k", ls="--")
         plt.axis(False)
         plt.show()
-
-    def compute_jacobian(self, forward) -> None:
-        pass
 
     def _create_basis(self) -> None:
         Bx = PixelBasis(self.Nx)
