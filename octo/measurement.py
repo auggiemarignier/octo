@@ -3,9 +3,10 @@ import numpy as np
 
 class PathIntegral:
     def __init__(
-        self, N: int, path_matrix: np.ndarray = None, npaths: int = -1
+        self, Nx: int, Ny: int, path_matrix: np.ndarray = None, npaths: int = -1
     ) -> None:
-        self.N = N
+        self.Nx = Nx
+        self.Ny = Ny
         if path_matrix is None:
             self.path_matrix = self.create_random_paths(npaths)
         else:  # clip path matrix to npaths if given
@@ -21,32 +22,34 @@ class PathIntegral:
     def plot(self):
         import matplotlib.pyplot as plt
 
-        pm = self.path_matrix.sum(axis=0).reshape(self.N, self.N)
+        pm = self.path_matrix.sum(axis=0).reshape(self.Nx, self.Ny)
         plt.imshow(pm)
         plt.show()
 
     def create_random_paths(self, npaths: int) -> np.ndarray:
-        path_matrix = np.zeros((npaths, self.N * self.N))
+        path_matrix = np.zeros((npaths, self.Nx * self.Ny))
         for i in range(npaths):
             path_matrix[i, :] = self._random_path()
         return path_matrix
 
     def _random_path(self) -> np.ndarray:
-        path = np.zeros((self.N, self.N))
+        path = np.zeros((self.Nx, self.Ny))
 
         # path should start outside the box, so either startx or starty
         # needs to be 0
-        startx = np.random.choice([0, np.random.randint(1, self.N)])
-        starty = 0 if startx != 0 else np.random.randint(1, self.N)
+        startx = np.random.choice([0, np.random.randint(1, self.Nx)])
+        starty = 0 if startx != 0 else np.random.randint(1, self.Ny)
 
         # path should end outside the box, so either endx or endy
         # needs to be N-1
         # while loop to ensure that start and end are not the same
         endx, endy = startx, starty
         while endx == startx and endy == starty:
-            endx = np.random.choice([self.N - 1, np.random.randint(0, self.N - 1)])
+            endx = np.random.choice([self.Nx - 1, np.random.randint(0, self.Nx - 1)])
             endy = (
-                self.N - 1 if endx != self.N - 1 else np.random.randint(0, self.N - 1)
+                self.Ny - 1
+                if endx != self.Nx - 1
+                else np.random.randint(0, self.Ny - 1)
             )
 
         x = np.arange(startx, endx + 1, step=np.sign(endx - startx))

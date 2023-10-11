@@ -11,5 +11,5 @@ def test_pathintegral():
     end = np.array([np.pi / 2, np.pi / 2])
     num_steps = 100
 
-    pathintegral = PathIntegral(100, npaths=5)
+    pathintegral = PathIntegral(100, 50, npaths=5)
     pathintegral.plot()
