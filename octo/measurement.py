@@ -26,6 +26,18 @@ class PathIntegral:
         plt.imshow(pm)
         plt.show()
 
+    def sample_path(self, start, end):
+        """
+        finds points along a path
+        """
+        startx, starty = start
+        endx, endy = end
+        path = np.zeros((self.Nx, self.Ny))
+        x = np.arange(startx, endx + 1, step=np.sign(endx - startx))
+        y = self._line_from_points((startx, starty), (endx, endy))(x)
+        path[x, np.round(y).astype(int)] = 1
+        return path
+
     def create_random_paths(self, npaths: int) -> np.ndarray:
         path_matrix = np.zeros((npaths, self.Nx * self.Ny))
         for i in range(npaths):
@@ -33,8 +45,6 @@ class PathIntegral:
         return path_matrix
 
     def _random_path(self) -> np.ndarray:
-        path = np.zeros((self.Nx, self.Ny))
-
         # path should start outside the box, so either startx or starty
         # needs to be 0
         startx = np.random.choice([0, np.random.randint(1, self.Nx)])
@@ -52,10 +62,7 @@ class PathIntegral:
                 else np.random.randint(0, self.Ny - 1)
             )
 
-        x = np.arange(startx, endx + 1, step=np.sign(endx - startx))
-        y = self._line_from_points((startx, starty), (endx, endy))(x)
-        path[x, np.round(y).astype(int)] = 1
-        return path.ravel()
+        return self.sample_path((startx, starty), (endx, endy)).ravel()
 
     def _line_from_points(self, start, end):
         """
