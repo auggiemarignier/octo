@@ -82,17 +82,19 @@ class CosineBasis2D(BaseBasis):
     def plot(self):
         import matplotlib.pyplot as plt
 
-        factor = 10
+        factor = 10  # upsampling factor
+
         Bx = CosineBasis(self.Nx)
         Bx._create_basis(_resolution=factor * self.Nx)
         By = CosineBasis(self.Ny)
         By._create_basis(_resolution=factor * self.Ny)
+
         basis_matrix = np.outer(Bx.basis, By.basis)
         plt.imshow(basis_matrix, cmap="RdBu")
-        for x in range(1, self.Nx):
-            plt.axvline(x * factor**2, color="k", ls="--")
-        for y in range(1, self.Ny):
-            plt.axhline(y * factor**2, color="k", ls="--")
+        for x in range(1, self.Ny):
+            plt.axvline(x * factor * self.Ny, color="k", ls="--")
+        for y in range(1, self.Nx):
+            plt.axhline(y * factor * self.Nx, color="k", ls="--")
         plt.axis(False)
         plt.show()
 

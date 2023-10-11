@@ -72,8 +72,8 @@ if __name__ == "__main__":
     plt.plot(basis_matrix.T)
     plt.show()
 
-    _Nx = 10
-    _Ny = 10
+    _Nx = 5
+    _Ny = 3
     cosine_basis = CosineBasis2D(_Nx, _Ny)
     cosine_basis.plot()
 
