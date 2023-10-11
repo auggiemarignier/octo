@@ -8,7 +8,10 @@ class PathIntegral:
         self.Nx = Nx
         self.Ny = Ny
         if path_matrix is None:
-            self.path_matrix = self.create_random_paths(npaths)
+            if npaths != -1:  # assume we want a random path matrix
+                self.path_matrix = self.create_random_paths(npaths)
+            else:  # create an empty path matrix
+                self.path_matrix = np.zeros((1, self.Nx * self.Ny))
         else:  # clip path matrix to npaths if given
             self.path_matrix = path_matrix[:npaths]
 
@@ -25,6 +28,19 @@ class PathIntegral:
         pm = self.path_matrix.sum(axis=0).reshape(self.Nx, self.Ny)
         plt.imshow(pm)
         plt.show()
+
+    def add_path(self, start, end):
+        """
+        adds a path to the path matrix
+        """
+        if self.path_matrix.shape[0] == 1 and np.all(
+            self.path_matrix == 0
+        ):  # empty path matrix
+            self.path_matrix[0] = self.sample_path(start, end).ravel()
+        else:
+            self.path_matrix = np.vstack(
+                (self.path_matrix, self.sample_path(start, end).ravel())
+            )
 
     def sample_path(self, start, end):
         """
