@@ -60,17 +60,12 @@ def test_2D_basis_orthonormal(basis, Nx, Ny):
 
 
 if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    from octo.basis import _reravel
-
     _N = 10
     cosine_basis = CosineBasis(_N)
     cosine_basis.plot()
 
     pixel_basis = PixelBasis(_N)
-    basis_matrix = pixel_basis.basis
-    plt.plot(basis_matrix.T)
-    plt.show()
+    pixel_basis.plot()
 
     _Nx = 5
     _Ny = 3
@@ -78,6 +73,4 @@ if __name__ == "__main__":
     cosine_basis.plot()
 
     pixel_basis = PixelBasis2D(_Nx, _Ny)
-    basis_matrix = pixel_basis.basis
-    plt.imshow(_reravel(basis_matrix, _Nx, _Ny))
-    plt.show()
+    pixel_basis.plot()

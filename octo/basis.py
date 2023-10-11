@@ -112,6 +112,17 @@ class PixelBasis(BaseBasis):
         super().__init__(N)
         self._create_basis()
 
+    def plot(self):
+        import matplotlib.pyplot as plt
+
+        x_fine = np.linspace(0, self.N, 1000)
+        for i in range(self.N):
+            basis_fine = np.zeros_like(x_fine)
+            basis_fine[np.argmin(np.abs(x_fine - i))] = 0.95
+            plt.plot(x_fine, i + basis_fine)
+
+        plt.show()
+
     def compute_jacobian(self, forward) -> None:
         self.jacobian = np.array([[forward(0.0)], [forward(1.0)]])
         return self.jacobian
@@ -128,6 +139,21 @@ class PixelBasis2D(BaseBasis):
         self.Ny = Ny
         super().__init__(Nx * Ny)
         self._create_basis()
+
+    def plot(self):
+        import matplotlib.pyplot as plt
+
+        Bx = PixelBasis(self.Nx)
+        By = PixelBasis(self.Ny)
+        basis_matrix = np.outer(Bx.basis, By.basis)
+
+        plt.imshow(basis_matrix, cmap="binary")
+        for x in range(1, self.Ny):
+            plt.axvline(x * self.Ny, color="k", ls="--")
+        for y in range(1, self.Nx):
+            plt.axhline(y * self.Nx, color="k", ls="--")
+        plt.axis(False)
+        plt.show()
 
     def compute_jacobian(self, forward) -> None:
         pass
