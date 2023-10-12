@@ -1,6 +1,9 @@
 import numpy as np
 import pytest
 from octo.basis import CosineBasis, PixelBasis, CosineBasis2D, PixelBasis2D
+from numpy.random import default_rng
+
+rng = default_rng(42)
 
 
 @pytest.fixture
@@ -29,9 +32,6 @@ def _is_othornomal_basis(basis_matrix):
 
 def test_ravel_unravel(Nx, Ny):
     from octo.basis import _unravel, _reravel
-    from numpy.random import default_rng
-
-    rng = default_rng(0)
 
     # The matrix that gets unravelled is the outer product of 2 1D basis
     # each 1D basis has N^2 elements, so the outer product has shape Nx^2 x Ny^2
@@ -83,6 +83,62 @@ def test_2D_basis_jacboian(basis, Nx, Ny):
     _basis.compute_jacobian(_forward)
 
     assert _basis.jacobian.shape == (ndata, Nx * Ny)
+
+
+def test_1D_pixel_basis_call(N):
+    """
+    The pixel basis in 1D is essentially an identity operator
+    So output should be the same as input
+    """
+    _basis = PixelBasis(N)
+    x = rng.random(N)
+    assert np.array_equal(_basis(x), x)
+
+
+def test_1D_cosine_basis_call(N):
+    """
+    Choose a few indices j, use these as coefficients for the basis
+    Manually sum the relevant cosines to give the expected output
+    """
+    _basis = CosineBasis(N)
+    j = np.unique(rng.integers(low=0, high=N, size=5))
+    x = np.zeros(N)
+    x[j] = j
+
+    _cx = (np.pi * (2 * np.arange(N) + 1)) / (2 * N)  # cosine evaluation points
+    norm = np.sqrt(N / 2)
+    expected = np.sum(j[:, np.newaxis] * np.cos(j[:, np.newaxis] * _cx) / norm, axis=0)
+    assert np.allclose(_basis(x), expected)
+
+
+def test_2D_pixel_basis_call(Nx, Ny):
+    """
+    The pixel basis in 2D is essentially an identity operator
+    So output should be the same as input
+    """
+    _basis = PixelBasis2D(Nx, Ny)
+    x = rng.random((Nx * Ny))
+    assert np.array_equal(_basis(x), x)
+
+
+def test_2D_cosine_basis_call(Nx, Ny):
+    from octo.basis import _reravel
+
+    _basis = CosineBasis2D(Nx, Ny)
+    jx = np.unique(rng.integers(low=0, high=Nx, size=5))
+    jy = np.unique(rng.integers(low=0, high=Ny, size=5))
+    x = np.zeros((Nx, Ny))
+    x[jx, jy] = jx * jy
+    x = x.ravel()
+
+    # extract the 2D basis functions corresponding to jx and jy
+    _reraveled = _reravel(_basis.basis, Nx, Ny)
+    expected = np.zeros((Nx, Ny))
+    for _jx, _jy in zip(jx, jy):
+        _b = _reraveled[_jx * Nx : (_jx + 1) * Nx, _jy * Ny : (_jy + 1) * Ny]
+        expected += _jx * _jy * _b
+
+    assert np.allclose(_basis(x), expected.ravel())
 
 
 if __name__ == "__main__":

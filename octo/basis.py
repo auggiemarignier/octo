@@ -11,6 +11,14 @@ class BaseBasis:
         self.N = N
         self.jacobian = None
 
+    def __call__(self, X: np.ndarray) -> np.ndarray:
+        """
+        X is a vector of length N
+        self.basis is a matrix of shape (N, N) with each row representing a basis function
+        So transpose self.basis and matmul by X to get the linear combination of basis functions
+        """
+        return self.basis.T @ X
+
     def compute_jacobian(self, forward: Callable) -> None:
         """
         forward is the measurment operator.
@@ -19,6 +27,11 @@ class BaseBasis:
         self.jacobian = forward(self.basis)
 
     def _create_basis(self) -> None:
+        """
+        Creates a matrix of basis functions of shape (N, N)
+        self.basis[i, :] is the ith basis function
+        i.e. each basis function is a row vector
+        """
         pass
 
 
