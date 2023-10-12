@@ -28,6 +28,13 @@ class OvercompleteBasis:
         self.rweight = rweight if rweight is not None else 1.0
         self.covariance = covariance if covariance is not None else np.eye(len(data))
 
+        if regularisation == "l1":
+            self.reg = self.l1_reg
+        elif regularisation == "l2":
+            raise NotImplementedError("L2 regularisation not yet implemented")
+        else:
+            raise ValueError(f"Unknown regularisation {regularisation}")
+
         self._check_jacobians()
         self._check_bweights()
 
@@ -40,8 +47,20 @@ class OvercompleteBasis:
             misfit += basis.jacobian @ _x
         misfit -= self.data
         weighted_squared_misfit = misfit.T @ np.linalg.inv(self.covariance) @ misfit
-        cost = weighted_squared_misfit + self.rweight * np.linalg.norm(x, 1)
+        cost = weighted_squared_misfit + self.rweight * self.reg(x)
         return cost
+
+    def l1_reg(self, x: np.ndarray) -> float:
+        """
+        L1 norm regularisation with a norm weight to account for different basis units
+        """
+        l1 = 0
+        for b, bw, _x in zip(self.bases, self.bweights, self._split(x)):
+            norm = np.linalg.norm(
+                np.sqrt(np.linalg.inv(self.covariance)) @ b.jacobian, 2
+            )
+            l1 += bw * norm * np.linalg.norm(_x, 1)
+        return l1
 
     def update_jacobians(self, forward: Callable):
         for basis in self.bases:
