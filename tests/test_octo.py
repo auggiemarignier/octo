@@ -51,15 +51,19 @@ def test_overcomplete_init(data, N):
     bweights = rng.random(2)
     rweight = rng.random(1)
     with pytest.raises(AssertionError):
-        overcomplete_basis = OvercompleteBasis(data, bases, bweights, rweight)
+        overcomplete_basis = OvercompleteBasis(
+            data, bases, bweights=bweights, rweight=rweight
+        )
 
     for b in bases:
         b.compute_jacobian(forward)
-    overcomplete_basis = OvercompleteBasis(data, bases, bweights, rweight)
+    overcomplete_basis = OvercompleteBasis(
+        data, bases, bweights=bweights, rweight=rweight
+    )
 
     assert np.allclose(overcomplete_basis.data, data)
     assert np.array_equal(overcomplete_basis.bases, bases)
-    assert np.array_equal(overcomplete_basis.bweights, bweights)
+    assert np.array_equal(overcomplete_basis.bweights, bweights / np.sum(bweights))
     assert np.array_equal(overcomplete_basis.rweight, rweight)
 
 

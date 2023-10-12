@@ -9,6 +9,7 @@ class OvercompleteBasis:
         self,
         data: np.ndarray,
         bases: List[BaseBasis],
+        regularisation: str = "l1",
         covariance: np.ndarray = None,
         bweights: List[float] = None,
         rweight: float = None,
@@ -16,8 +17,9 @@ class OvercompleteBasis:
         """
         data: observed data to be fitted
         bases: list of basis objects
+        regularisation: type of regularisation.  Default is l1. Options are ['l1', 'l2']
         covariance: covariance matrix for data.  Default is identity matrix.
-        bweights: list of weights for each basis.  Default is 1.0 for each basis.
+        bweights: list of weights for each basis.  Default is even weight for each basis. Sum to 1 is enforced.
         rweight: Regularisation weight. Default is 1.0.
         """
         self.data = data
@@ -27,6 +29,7 @@ class OvercompleteBasis:
         self.covariance = covariance if covariance is not None else np.eye(len(data))
 
         self._check_jacobians()
+        self._check_bweights()
 
     def cost(self, x: np.ndarray) -> float:
         """
@@ -47,6 +50,12 @@ class OvercompleteBasis:
     def _check_jacobians(self):
         for basis in self.bases:
             assert basis.jacobian is not None, "Jacobian not computed for basis"
+
+    def _check_bweights(self):
+        if len(self.bweights) != len(self.bases):
+            raise ValueError("Number of basis weights does not match number of bases")
+        if np.sum(self.bweights) != 1.0:
+            self.bweights /= np.sum(self.bweights)
 
     def _split(self, x):
         """
