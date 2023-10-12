@@ -19,6 +19,9 @@ class BaseBasis:
         """
         return self.basis.T @ X
 
+    def __getitem__(self, i):
+        return self.basis[i]
+
     def compute_jacobian(self, forward: Callable) -> None:
         """
         forward is the measurment operator.
