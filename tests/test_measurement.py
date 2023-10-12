@@ -4,23 +4,17 @@ import pytest
 
 
 def test_pathintegral():
-    import matplotlib.pyplot as plt
-
     N = 100
     M = 50
-
     x = np.linspace(0, 2 * np.pi, M)
     y = np.ones(N)
 
     X, Y = np.meshgrid(x, y)
     field = np.sin(X)
-    plt.imshow(field)
-    plt.show()
 
     pathintegral = PathIntegral(N, M)
     pathintegral.add_path((0, M // 4), (N - 1, M // 4))
     pathintegral.add_path((N // 2, 0), (N // 2, M - 1))
-    pathintegral.plot()
 
     expected = np.array([np.sum(field[:, M // 4]), np.sum(field[N // 2, :])])
     actual = pathintegral(field)
