@@ -17,17 +17,19 @@ def N():
 
 
 @pytest.fixture
-def data():
-    ### NEEDS TO BE GENERATED FROM BASIS FUNCTIONS
-    return forward(rng.random(100))
-
-
-@pytest.fixture
 def bases(N):
     _bases = [CosineBasis(N), PixelBasis(N)]
     for b in _bases:
         b.compute_jacobian(forward)
     return _bases
+
+
+@pytest.fixture
+def data(bases):
+    mc = rng.random(bases[0].N)  # random cosine coefficients
+    mp = rng.random(bases[1].N)  # random pixel coefficients
+    field = bases[0](mc) + bases[1](mp)  # field
+    return forward(field)
 
 
 def test_overcomplete_init(data, N):
