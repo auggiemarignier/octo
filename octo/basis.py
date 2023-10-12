@@ -24,10 +24,10 @@ class BaseBasis:
 
     def compute_jacobian(self, forward: Callable) -> None:
         """
-        forward is the measurment operator.
-        It should take a vector of length N or an array of shape (N, N).
+        forward is the measurment operator. It should take a vector of length N.
+        Since self.basis is (N, N), we need to loop through and apply forward to each column
         """
-        self.jacobian = forward(self.basis)
+        self.jacobian = np.vstack([forward(self.basis[:, i]) for i in range(self.N)]).T
 
     def _create_basis(self) -> None:
         """
