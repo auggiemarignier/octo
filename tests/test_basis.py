@@ -85,22 +85,9 @@ def test_2D_basis_jacboian(basis, Nx, Ny):
     assert _basis.jacobian.shape == (ndata, Nx * Ny)
 
 
-def test_1D_pixel_basis_call(N):
-    """
-    The pixel basis in 1D is essentially an identity operator
-    So output should be the same as input
-    """
-    _basis = PixelBasis(N)
-    x = rng.random(N)
-    assert np.array_equal(_basis(x), x)
-
-
-def test_1D_cosine_basis_call(N):
-    """
-    Choose a few indices j, use these as coefficients for the basis
-    Manually sum the relevant cosines to give the expected output
-    """
-    _basis = CosineBasis(N)
+@pytest.mark.parametrize("basis", [PixelBasis, CosineBasis])
+def test_1D_basis_call(basis, N):
+    _basis = basis(N)
     j = np.unique(rng.integers(low=0, high=N, size=5))
     x = np.zeros(N)
     x[j] = j
@@ -109,34 +96,15 @@ def test_1D_cosine_basis_call(N):
     assert np.allclose(_basis(x), expected)
 
 
-def test_2D_pixel_basis_call(Nx, Ny):
-    """
-    The pixel basis in 2D is essentially an identity operator
-    So output should be the same as input
-    """
-    _basis = PixelBasis2D(Nx, Ny)
-    x = rng.random((Nx * Ny))
-    assert np.array_equal(_basis(x), x)
+@pytest.mark.parametrize("basis", [PixelBasis2D, CosineBasis2D])
+def test_2D_basis_call(basis, Nx, Ny):
+    _basis = basis(Nx, Ny)
+    j = np.unique(rng.integers(low=0, high=Nx * Ny, size=5))
+    x = np.zeros(Nx * Ny)
+    x[j] = j
 
-
-def test_2D_cosine_basis_call(Nx, Ny):
-    from octo.basis import _reravel
-
-    _basis = CosineBasis2D(Nx, Ny)
-    jx = np.unique(rng.integers(low=0, high=Nx, size=5))
-    jy = np.unique(rng.integers(low=0, high=Ny, size=5))
-    x = np.zeros((Nx, Ny))
-    x[jx, jy] = jx * jy
-    x = x.ravel()
-
-    # extract the 2D basis functions corresponding to jx and jy
-    _reraveled = _reravel(_basis.basis, Nx, Ny)
-    expected = np.zeros((Nx, Ny))
-    for _jx, _jy in zip(jx, jy):
-        _b = _reraveled[_jx * Nx : (_jx + 1) * Nx, _jy * Ny : (_jy + 1) * Ny]
-        expected += _jx * _jy * _b
-
-    assert np.allclose(_basis(x), expected.ravel())
+    expected = np.sum([_j * _basis[_j] for _j in j], axis=0)
+    assert np.allclose(_basis(x), expected)
 
 
 if __name__ == "__main__":
