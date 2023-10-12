@@ -17,10 +17,10 @@ class BaseBasis:
         self.basis is a matrix of shape (N, N) with each row representing a basis function
         So transpose self.basis and matmul by X to get the linear combination of basis functions
         """
-        return self.basis.T @ X
+        return self.basis @ X
 
     def __getitem__(self, i):
-        return self.basis[i]
+        return self.basis[:, i]
 
     def compute_jacobian(self, forward: Callable) -> None:
         """
@@ -32,8 +32,8 @@ class BaseBasis:
     def _create_basis(self) -> None:
         """
         Creates a matrix of basis functions of shape (N, N)
-        self.basis[i, :] is the ith basis function
-        i.e. each basis function is a row vector
+        self.basis[:, i] is the ith basis function
+        i.e. each basis function is a column vector
         """
         pass
 
@@ -68,9 +68,9 @@ class CosineBasis(BaseBasis):
         """
         if _resolution is None:
             _resolution = self.N
-        self.basis = np.zeros((self.N, _resolution))
+        self.basis = np.zeros((_resolution, self.N))
         for i in range(self.N):
-            self.basis[i, :] = self.method(i, _resolution)
+            self.basis[:, i] = self.method(i, _resolution)
 
     def _basis_from_idct(self, i, _resolution) -> np.ndarray:
         return idct(np.eye(_resolution)[i, :], norm="ortho")
