@@ -44,6 +44,6 @@ def test_overcomplete_init(data, N):
     overcomplete_basis = OvercompleteBasis(data, bases, bweights, rweight)
 
     assert np.allclose(overcomplete_basis.data, data)
-    assert overcomplete_basis.bases == bases
-    assert overcomplete_basis.bweights == bweights
-    assert overcomplete_basis.rweight == rweight
+    assert np.array_equal(overcomplete_basis.bases, bases)
+    assert np.array_equal(overcomplete_basis.bweights, bweights)
+    assert np.array_equal(overcomplete_basis.rweight, rweight)
