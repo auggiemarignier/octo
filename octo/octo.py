@@ -42,13 +42,17 @@ class OvercompleteBasis:
         """
         x: proposed solution to be compared with observed data
         """
+        return self.data_misfit(x) + self.rweight * self.reg(x)
+
+    def data_misfit(self, x: np.ndarray) -> float:
+        """
+        x: proposed solution to be compared with observed data
+        """
         misfit = np.zeros_like(self.data)
         for basis, _x in zip(self.bases, self._split(x)):
             misfit += basis.jacobian @ _x
         misfit -= self.data
-        weighted_squared_misfit = misfit.T @ np.linalg.inv(self.covariance) @ misfit
-        cost = weighted_squared_misfit + self.rweight * self.reg(x)
-        return cost
+        return misfit.T @ np.linalg.inv(self.covariance) @ misfit
 
     def l1_reg(self, x: np.ndarray) -> float:
         """
