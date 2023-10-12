@@ -25,10 +25,24 @@ def bases(N):
 
 
 @pytest.fixture
-def data(bases):
-    mc = rng.random(bases[0].N)  # random cosine coefficients
-    mp = rng.random(bases[1].N)  # random pixel coefficients
-    field = bases[0](mc) + bases[1](mp)  # field
+def mc(bases):
+    """
+    True random cosine coefficients
+    """
+    return rng.random(bases[0].N)
+
+
+@pytest.fixture
+def mp(bases):
+    """
+    True random pixel coefficients
+    """
+    return rng.random(bases[1].N)
+
+
+@pytest.fixture
+def data(bases, mc, mp):
+    field = bases[0](mc) + bases[1](mp)
     return forward(field)
 
 
@@ -47,3 +61,9 @@ def test_overcomplete_init(data, N):
     assert np.array_equal(overcomplete_basis.bases, bases)
     assert np.array_equal(overcomplete_basis.bweights, bweights)
     assert np.array_equal(overcomplete_basis.rweight, rweight)
+
+
+def test_overcomplete_cost(data, bases, mc, mp):
+    overcomplete_basis = OvercompleteBasis(data, bases, rweight=0.0)
+    cost = overcomplete_basis.cost(np.concatenate([mc, mp]))
+    assert cost == pytest.approx(0.0)

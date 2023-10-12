@@ -29,10 +29,12 @@ class OvercompleteBasis:
         """
         x: proposed solution to be compared with observed data
         """
-        cost = 0.0
-        for bw, basis in zip(self.bweights, self.bases):
-            cost += bw * x.dot(basis.jacobian)
-        cost += self.rweight * np.linalg.norm(x, 1)
+        misfit = np.zeros_like(self.data)
+        for basis, _x in zip(self.bases, self._split(x)):
+            misfit += basis.jacobian @ _x
+        misfit -= self.data
+
+        cost = misfit + self.rweight * np.linalg.norm(x, 1)
         return cost
 
     def update_jacobians(self, forward: Callable):
@@ -42,6 +44,17 @@ class OvercompleteBasis:
     def _check_jacobians(self):
         for basis in self.bases:
             assert basis.jacobian is not None, "Jacobian not computed for basis"
+
+    def _split(self, x):
+        """
+        x is a vector of coefficients for the overcomplete basis.
+        Split x into vectors of coefficients for each basis.
+        """
+        split = []
+        for basis in self.bases:
+            split.append(x[: basis.N])
+            x = x[basis.N :]
+        return np.array(split)
 
 
 def minimize_cost(overcomplete_basis: OvercompleteBasis, x0: float, y: float) -> float:
