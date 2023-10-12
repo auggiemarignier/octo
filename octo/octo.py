@@ -7,25 +7,33 @@ from typing import List, Callable
 class OvercompleteBasis:
     def __init__(
         self,
+        data: np.ndarray,
         bases: List[BaseBasis],
         bweights: List[float] = None,
         rweight: float = None,
     ) -> None:
         """
+        data: observed data to be fitted
         bases: list of basis objects
         bweights: list of weights for each basis.  Default is 1.0 for each basis.
         rweight: Regularisation weight. Default is 1.0.
         """
+        self.data = data
         self.bases = bases
         self.bweights = bweights if bweights is not None else [1.0 for _ in bases]
         self.rweight = rweight if rweight is not None else 1.0
 
         self._check_jacobians()
 
-    def cost(self, x: float, y: float) -> float:
-        basis_val = self.basis.create_basis()
-        jacobian = self.basis.compute_jacobian(forward=lambda x: x**2)
-        return np.sum((y - basis_val) ** 2) + np.sum(jacobian)
+    def cost(self, x: np.ndarray) -> float:
+        """
+        x: proposed solution to be compared with observed data
+        """
+        cost = 0.0
+        for bw, basis in zip(self.bweights, self.bases):
+            cost += bw * x.dot(basis.jacobian)
+        cost += self.rweight * np.linalg.norm(x, 1)
+        return cost
 
     def update_jacobians(self, forward: Callable):
         for basis in self.bases:
