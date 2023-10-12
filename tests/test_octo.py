@@ -7,17 +7,38 @@ import pytest
 rng = default_rng(42)
 
 
-def test_overcomplete_init():
-    N = 10
-    data = rng.random(N)
+def forward(x: np.ndarray) -> np.ndarray:
+    return x
+
+
+@pytest.fixture
+def N():
+    return 10
+
+
+@pytest.fixture
+def data():
+    ### NEEDS TO BE GENERATED FROM BASIS FUNCTIONS
+    return forward(rng.random(100))
+
+
+@pytest.fixture
+def bases(N):
+    _bases = [CosineBasis(N), PixelBasis(N)]
+    for b in _bases:
+        b.compute_jacobian(forward)
+    return _bases
+
+
+def test_overcomplete_init(data, N):
     bases = [CosineBasis(N), PixelBasis(N)]
-    bweights = [1.0, 1.0]
-    rweight = 1.0
+    bweights = rng.random(2)
+    rweight = rng.random(1)
     with pytest.raises(AssertionError):
         overcomplete_basis = OvercompleteBasis(data, bases, bweights, rweight)
 
     for b in bases:
-        b.compute_jacobian(lambda x: np.eye(N).dot(x))
+        b.compute_jacobian(forward)
     overcomplete_basis = OvercompleteBasis(data, bases, bweights, rweight)
 
     assert np.allclose(overcomplete_basis.data, data)
