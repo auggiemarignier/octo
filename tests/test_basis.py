@@ -105,9 +105,7 @@ def test_1D_cosine_basis_call(N):
     x = np.zeros(N)
     x[j] = j
 
-    _cx = (np.pi * (2 * np.arange(N) + 1)) / (2 * N)  # cosine evaluation points
-    norm = np.sqrt(N / 2)
-    expected = np.sum(j[:, np.newaxis] * np.cos(j[:, np.newaxis] * _cx) / norm, axis=0)
+    expected = np.sum([_j * _basis[_j] for _j in j], axis=0)
     assert np.allclose(_basis(x), expected)
 
 
