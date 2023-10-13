@@ -50,7 +50,17 @@ class OvercompleteBasis:
         x: proposed solution to be compared with observed data
         """
         misfit = self.data - self.jacobian @ x
-        return misfit.T @ np.linalg.inv(self.covariance) @ misfit
+        return misfit.T @ np.linalg.inv(self.covariance) @ misfit / 2.0
+
+    def data_misfit_gradient(self, x: np.ndarray) -> float:
+        """
+        x: proposed solution to be compared with observed data
+        """
+        return (
+            self.jacobian.T
+            @ np.linalg.inv(self.covariance)
+            @ (self.jacobian @ x - self.data)
+        )
 
     def l1_reg(self, x: np.ndarray) -> float:
         """

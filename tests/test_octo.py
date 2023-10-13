@@ -76,3 +76,23 @@ def test_overcomplete_cost(data, bases, mc, mp):
 def test_overcomplete_combined_jacobian(data, bases, mc, mp):
     overcomplete_basis = OvercompleteBasis(data, bases, rweight=0.0)
     assert overcomplete_basis.jacobian.shape == (data.size, mc.size + mp.size)
+
+
+def test_data_misfit_gradient(data, bases, mc, mp):
+    # Generate a random input vector
+    x = np.random.rand(mc.size + mp.size)
+
+    # Compute the misfit gradient
+    overcomplete_basis = OvercompleteBasis(data, bases, rweight=0.0)
+    gradient = overcomplete_basis.data_misfit_gradient(x)
+
+    # Check that the shape of the misfit gradient is correct
+    assert gradient.shape == (mc.size + mp.size,)
+
+    # Calculate the expected misfit gradient basis by basis
+    split = overcomplete_basis._split(x)
+    expected_misfit = (
+        np.sum([b.jacobian @ _x for b, _x in zip(bases, split)], axis=0) - data
+    )
+    expected_gradient = np.hstack([b.jacobian.T @ expected_misfit for b in bases])
+    assert np.allclose(gradient, expected_gradient)
