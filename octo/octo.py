@@ -66,8 +66,8 @@ class OvercompleteBasis:
         """
         L1 norm regularisation with a norm weight to account for different basis units
         """
-        l1 = self.bweights * self.l1_weighting_norms * np.linalg.norm(self._split(x), 1)
-        return self.rweight * np.hstack(l1)
+        l1 = np.linalg.norm(self._split(x), 1, axis=1)[:, np.newaxis]
+        return self.rweight * np.sum(self.bweights * self.l1_weighting_norms * l1)
 
     def l1_reg_gradient(self, x: np.ndarray) -> np.ndarray:
         split = self._split(x)
