@@ -24,51 +24,59 @@ class OvercompleteBasis:
         """
         self.data = data
         self.bases = bases
+        self._check_jacobians()
+        self._combine_jacobians()
+
         self.bweights = bweights if bweights is not None else [1.0 for _ in bases]
+        self._check_bweights()
+
         self.rweight = rweight if rweight is not None else 1.0
         self.covariance = covariance if covariance is not None else np.eye(len(data))
+        self.invcov = np.linalg.inv(self.covariance)
 
         if regularisation == "l1":
             self.reg = self.l1_reg
+            self.reg_gradient = self.l1_reg_gradient
+            self._precompute_l1_wieghting_norms()
         elif regularisation == "l2":
             raise NotImplementedError("L2 regularisation not yet implemented")
         else:
             raise ValueError(f"Unknown regularisation {regularisation}")
 
-        self._check_jacobians()
-        self._check_bweights()
-
     def cost(self, x: np.ndarray) -> float:
         """
         x: proposed solution to be compared with observed data
         """
-        return self.data_misfit(x) + self.rweight * self.reg(x)
+        return self.data_misfit(x) + self.reg(x)
 
     def data_misfit(self, x: np.ndarray) -> float:
         """
         x: proposed solution to be compared with observed data
         """
-        misfit = np.zeros_like(self.data)
-        for basis, _x in zip(self.bases, self._split(x)):
-            misfit += basis.jacobian @ _x
-        misfit -= self.data
-        return misfit.T @ np.linalg.inv(self.covariance) @ misfit
+        misfit = self.data - self.jacobian @ x
+        return misfit.T @ self.invcov @ misfit / 2.0
+
+    def data_misfit_gradient(self, x: np.ndarray) -> np.ndarray:
+        """
+        x: proposed solution to be compared with observed data
+        """
+        return self.jacobian.T @ self.invcov @ (self.jacobian @ x - self.data)
 
     def l1_reg(self, x: np.ndarray) -> float:
         """
         L1 norm regularisation with a norm weight to account for different basis units
         """
-        l1 = 0
-        for b, bw, _x in zip(self.bases, self.bweights, self._split(x)):
-            norm = np.linalg.norm(
-                np.sqrt(np.linalg.inv(self.covariance)) @ b.jacobian, 2
-            )
-            l1 += bw * norm * np.linalg.norm(_x, 1)
-        return l1
+        l1 = np.linalg.norm(self._split(x), 1, axis=1)[:, np.newaxis]
+        return self.rweight * np.sum(self.bweights * self.l1_weighting_norms * l1)
 
-    def update_jacobians(self, forward: Callable):
-        for basis in self.bases:
-            basis.compute_jacobian(forward)
+    def l1_reg_gradient(self, x: np.ndarray) -> np.ndarray:
+        split = self._split(x)
+        l1_grads = np.sign(split)
+        gradient = self.bweights * self.l1_weighting_norms * l1_grads
+        return self.rweight * np.hstack(gradient)
+
+    def _combine_jacobians(self):
+        self.jacobian = np.hstack([b.jacobian for b in self.bases])
 
     def _check_jacobians(self):
         for basis in self.bases:
@@ -79,6 +87,7 @@ class OvercompleteBasis:
             raise ValueError("Number of basis weights does not match number of bases")
         if np.sum(self.bweights) != 1.0:
             self.bweights /= np.sum(self.bweights)
+        self.bweights = self.bweights[:, np.newaxis]
 
     def _split(self, x):
         """
@@ -91,21 +100,9 @@ class OvercompleteBasis:
             x = x[basis.N :]
         return np.array(split)
 
-
-def minimize_cost(overcomplete_basis: OvercompleteBasis, x0: float, y: float) -> float:
-    res = minimize(overcomplete_basis.cost, x0=x0, args=(y,))
-    return res.fun
-
-
-def main():
-    cosine_basis = CosineBasis()
-    pixel_basis = PixelBasis()
-    overcomplete_basis = OvercompleteBasis([cosine_basis, pixel_basis])
-    x0 = 0.5
-    y = 1.0
-    min_cost = minimize_cost(overcomplete_basis, x0, y)
-    print(f"Minimum cost: {min_cost}")
-
-
-if __name__ == "__main__":
-    main()
+    def _precompute_l1_wieghting_norms(self):
+        self.l1_weighting_norms = np.zeros((len(self.bases), 1))
+        for i, basis in enumerate(self.bases):
+            self.l1_weighting_norms[i] = np.linalg.norm(
+                np.sqrt(self.invcov) @ basis.jacobian, 2
+            )
