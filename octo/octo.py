@@ -106,22 +106,3 @@ class OvercompleteBasis:
             self.l1_weighting_norms[i] = np.linalg.norm(
                 np.sqrt(self.invcov) @ basis.jacobian, 2
             )
-
-
-def minimize_cost(overcomplete_basis: OvercompleteBasis, x0: float, y: float) -> float:
-    res = minimize(overcomplete_basis.cost, x0=x0, args=(y,))
-    return res.fun
-
-
-def main():
-    cosine_basis = CosineBasis()
-    pixel_basis = PixelBasis()
-    overcomplete_basis = OvercompleteBasis([cosine_basis, pixel_basis])
-    x0 = 0.5
-    y = 1.0
-    min_cost = minimize_cost(overcomplete_basis, x0, y)
-    print(f"Minimum cost: {min_cost}")
-
-
-if __name__ == "__main__":
-    main()
