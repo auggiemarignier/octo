@@ -107,18 +107,24 @@ def test_l1_gradient(data, bases, mc, mp):
     x = np.random.randn(mc.size + mp.size)
 
     # Compute the l1 gradient
-    overcomplete_basis = OvercompleteBasis(data, bases, rweight=1.0)
+    overcomplete_basis = OvercompleteBasis(data, bases, rweight=2.0)
     gradient = overcomplete_basis.l1_reg_gradient(x)
 
     # Check that the shape of the l1 gradient is correct
     assert gradient.shape == (mc.size + mp.size,)
 
     # Calculate the expected l1 gradient basis by basis
-    split = overcomplete_basis._split(x)
-    l1_grads = np.sign(split)
-    norms = np.array([np.linalg.norm(b.jacobian, 2) for b in bases])
-    expected_gradient = (
-        overcomplete_basis.bweights[:, np.newaxis] * norms[:, np.newaxis] * l1_grads
-    ).ravel()
+    l1_grads = []
+    for b, bw, _x in zip(
+        overcomplete_basis.bases,
+        overcomplete_basis.bweights,
+        overcomplete_basis._split(x),
+    ):
+        norm = np.linalg.norm(
+            np.sqrt(np.linalg.inv(overcomplete_basis.covariance)) @ b.jacobian, 2
+        )
+        l1_grad = overcomplete_basis.rweight * bw * norm * np.sign(_x)
+        l1_grads.append(l1_grad)
+    expected_gradient = np.hstack(l1_grads)
 
     assert np.allclose(gradient, expected_gradient)

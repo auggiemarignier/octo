@@ -75,14 +75,13 @@ class OvercompleteBasis:
         return l1
 
     def l1_reg_gradient(self, x: np.ndarray) -> np.ndarray:
-        l1_grads = []
-        for b, bw, _x in zip(self.bases, self.bweights, self._split(x)):
-            norm = np.linalg.norm(
-                np.sqrt(np.linalg.inv(self.covariance)) @ b.jacobian, 2
-            )
-            l1_grad = self.rweight * bw * norm * np.sign(_x)
-            l1_grads.append(l1_grad)
-        return np.hstack(l1_grads)
+        split = self._split(x)
+        l1_grads = np.sign(split)
+        norms = np.array([np.linalg.norm(b.jacobian, 2) for b in self.bases])
+        gradient = (
+            self.bweights[:, np.newaxis] * norms[:, np.newaxis] * l1_grads
+        ).ravel()
+        return self.rweight * np.hstack(gradient)
 
     def _combine_jacobians(self):
         self.jacobian = np.hstack([b.jacobian for b in self.bases])
