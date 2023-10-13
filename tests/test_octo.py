@@ -63,7 +63,9 @@ def test_overcomplete_init(data, N):
 
     assert np.allclose(overcomplete_basis.data, data)
     assert np.array_equal(overcomplete_basis.bases, bases)
-    assert np.array_equal(overcomplete_basis.bweights, bweights / np.sum(bweights))
+    assert np.array_equal(
+        overcomplete_basis.bweights.ravel(), bweights / np.sum(bweights)
+    )
     assert np.array_equal(overcomplete_basis.rweight, rweight)
 
 
