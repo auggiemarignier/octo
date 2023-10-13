@@ -70,9 +70,13 @@ def test_overcomplete_init(data, N):
 
 
 def test_overcomplete_cost(data, bases, mc, mp):
-    overcomplete_basis = OvercompleteBasis(data, bases, rweight=0.0)
+    overcomplete_basis = OvercompleteBasis(
+        data, bases, regularisation="l1", rweight=2.0
+    )
     cost = overcomplete_basis.cost(np.concatenate([mc, mp]))
-    assert cost == pytest.approx(0.0)
+
+    expected = 0 + 2 * 0.5 * (np.linalg.norm(mc, 1) + np.linalg.norm(mp, 1))
+    assert cost == pytest.approx(expected)
 
 
 def test_overcomplete_combined_jacobian(data, bases, mc, mp):
