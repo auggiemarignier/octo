@@ -36,6 +36,7 @@ class OvercompleteBasis:
             raise ValueError(f"Unknown regularisation {regularisation}")
 
         self._check_jacobians()
+        self._combine_jacobians()
         self._check_bweights()
 
     def cost(self, x: np.ndarray) -> float:
@@ -48,10 +49,7 @@ class OvercompleteBasis:
         """
         x: proposed solution to be compared with observed data
         """
-        misfit = np.zeros_like(self.data)
-        for basis, _x in zip(self.bases, self._split(x)):
-            misfit += basis.jacobian @ _x
-        misfit -= self.data
+        misfit = self.data - self.jacobian @ x
         return misfit.T @ np.linalg.inv(self.covariance) @ misfit
 
     def l1_reg(self, x: np.ndarray) -> float:
@@ -66,9 +64,8 @@ class OvercompleteBasis:
             l1 += bw * norm * np.linalg.norm(_x, 1)
         return l1
 
-    def update_jacobians(self, forward: Callable):
-        for basis in self.bases:
-            basis.compute_jacobian(forward)
+    def _combine_jacobians(self):
+        self.jacobian = np.hstack([b.jacobian for b in self.bases])
 
     def _check_jacobians(self):
         for basis in self.bases:

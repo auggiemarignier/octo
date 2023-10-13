@@ -71,3 +71,8 @@ def test_overcomplete_cost(data, bases, mc, mp):
     overcomplete_basis = OvercompleteBasis(data, bases, rweight=0.0)
     cost = overcomplete_basis.cost(np.concatenate([mc, mp]))
     assert cost == pytest.approx(0.0)
+
+
+def test_overcomplete_combined_jacobian(data, bases, mc, mp):
+    overcomplete_basis = OvercompleteBasis(data, bases, rweight=0.0)
+    assert overcomplete_basis.jacobian.shape == (data.size, mc.size + mp.size)
