@@ -96,3 +96,29 @@ def test_data_misfit_gradient(data, bases, mc, mp):
     )
     expected_gradient = np.hstack([b.jacobian.T @ expected_misfit for b in bases])
     assert np.allclose(gradient, expected_gradient)
+
+
+def test_l1_gradient(data, bases, mc, mp):
+    """
+    With Identity covariance operator, the weighting norm is just the norm of the basis jacboian.
+    The l1 gradient is the signs of the coefficients (ignoring zeros).
+    """
+    # Generate a random input vector
+    x = np.random.randn(mc.size + mp.size)
+
+    # Compute the l1 gradient
+    overcomplete_basis = OvercompleteBasis(data, bases, rweight=1.0)
+    gradient = overcomplete_basis.l1_reg_gradient(x)
+
+    # Check that the shape of the l1 gradient is correct
+    assert gradient.shape == (mc.size + mp.size,)
+
+    # Calculate the expected l1 gradient basis by basis
+    split = overcomplete_basis._split(x)
+    l1_grads = np.sign(split)
+    norms = np.array([np.linalg.norm(b.jacobian, 2) for b in bases])
+    expected_gradient = (
+        overcomplete_basis.bweights[:, np.newaxis] * norms[:, np.newaxis] * l1_grads
+    ).ravel()
+
+    assert np.allclose(gradient, expected_gradient)

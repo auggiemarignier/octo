@@ -52,7 +52,7 @@ class OvercompleteBasis:
         misfit = self.data - self.jacobian @ x
         return misfit.T @ np.linalg.inv(self.covariance) @ misfit / 2.0
 
-    def data_misfit_gradient(self, x: np.ndarray) -> float:
+    def data_misfit_gradient(self, x: np.ndarray) -> np.ndarray:
         """
         x: proposed solution to be compared with observed data
         """
@@ -73,6 +73,16 @@ class OvercompleteBasis:
             )
             l1 += bw * norm * np.linalg.norm(_x, 1)
         return l1
+
+    def l1_reg_gradient(self, x: np.ndarray) -> np.ndarray:
+        l1_grads = []
+        for b, bw, _x in zip(self.bases, self.bweights, self._split(x)):
+            norm = np.linalg.norm(
+                np.sqrt(np.linalg.inv(self.covariance)) @ b.jacobian, 2
+            )
+            l1_grad = self.rweight * bw * norm * np.sign(_x)
+            l1_grads.append(l1_grad)
+        return np.hstack(l1_grads)
 
     def _combine_jacobians(self):
         self.jacobian = np.hstack([b.jacobian for b in self.bases])
