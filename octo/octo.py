@@ -47,7 +47,7 @@ class OvercompleteBasis:
         """
         x: proposed solution to be compared with observed data
         """
-        return self.data_misfit(x) + self.rweight * self.reg(x)
+        return self.data_misfit(x) + self.reg(x)
 
     def data_misfit(self, x: np.ndarray) -> float:
         """
