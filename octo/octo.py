@@ -1,7 +1,6 @@
-from octo.basis import BaseBasis, CosineBasis, PixelBasis
+from octo.basis import BaseBasis
 import numpy as np
-from scipy.optimize import minimize
-from typing import List, Callable
+from typing import List
 
 
 class OvercompleteBasis:
@@ -48,6 +47,12 @@ class OvercompleteBasis:
         x: proposed solution to be compared with observed data
         """
         return self.data_misfit(x) + self.reg(x)
+
+    def cost_gradient(self, x: np.ndarray) -> np.ndarray:
+        """
+        x: proposed solution to be compared with observed data
+        """
+        return self.data_misfit_gradient(x) + self.reg_gradient(x)
 
     def data_misfit(self, x: np.ndarray) -> float:
         """
