@@ -54,7 +54,7 @@ class CosineBasis(BaseBasis):
         import matplotlib.pyplot as plt
 
         self._create_basis(_resolution=10 * self.N)
-        for i, basis in enumerate(self.basis):
+        for i, basis in enumerate(self.basis.T):
             plt.plot(i + basis)
         plt.show()
 
@@ -102,7 +102,7 @@ class CosineBasis2D(BaseBasis):
         By = CosineBasis(self.Ny)
         By._create_basis(_resolution=factor * self.Ny)
 
-        basis_matrix = np.outer(Bx.basis, By.basis)
+        basis_matrix = np.outer(Bx.basis.T, By.basis.T)
         plt.imshow(basis_matrix, cmap="RdBu")
         for x in range(1, self.Ny):
             plt.axvline(x * factor * self.Ny, color="k", ls="--")
@@ -114,7 +114,7 @@ class CosineBasis2D(BaseBasis):
     def _create_basis(self) -> None:
         Bx = CosineBasis(self.Nx)
         By = CosineBasis(self.Ny)
-        self.basis = _unravel(np.outer(Bx.basis, By.basis), self.Nx, self.Ny)
+        self.basis = _unravel(np.outer(Bx.basis.T, By.basis.T), self.Nx, self.Ny)
 
 
 class PixelBasis(BaseBasis):
@@ -164,22 +164,22 @@ class PixelBasis2D(BaseBasis):
     def _create_basis(self) -> None:
         Bx = PixelBasis(self.Nx)
         By = PixelBasis(self.Ny)
-        self.basis = _unravel(np.outer(Bx.basis, By.basis), self.Nx, self.Ny)
+        self.basis = _unravel(np.outer(Bx.basis.T, By.basis.T), self.Nx, self.Ny)
 
 
 def _unravel(basis_matrix: np.ndarray, nx: int, ny: int) -> np.ndarray:
     """
     Combining 2 1D basis classes by taking the outer product of their basis
     creates a matrix of 2D basis functions. This function unravels that matrix
-    such that the 2D basis functions are flattened into a row vector.
+    such that the 2D basis functions are flattened into a column vector.
     """
     unraveled = np.zeros((nx * ny, nx * ny))
     for i in range(nx):  # row
         for j in range(ny):  # column
             k = i * ny + j
-            unraveled[k, :] = basis_matrix[
+            unraveled[:, k] = basis_matrix[
                 i * nx : (i + 1) * nx, j * ny : (j + 1) * ny
-            ].flatten()
+            ].ravel()
     return unraveled
 
 
@@ -192,6 +192,6 @@ def _reravel(basis_matrix: np.ndarray, nx: int, ny: int) -> np.ndarray:
         for j in range(ny):  # column
             k = i * ny + j
             reraveled[i * nx : (i + 1) * nx, j * ny : (j + 1) * ny] = basis_matrix[
-                k, :
+                :, k
             ].reshape((nx, ny))
     return reraveled
