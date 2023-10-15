@@ -50,13 +50,15 @@ class CosineBasis(BaseBasis):
 
         self._create_basis()
 
-    def plot(self):
+    def plot(self, figsize: tuple = (6, 4), show: bool = False):
         import matplotlib.pyplot as plt
 
         self._create_basis(_resolution=10 * self.N)
+        plt.figure(figsize=figsize)
         for i, basis in enumerate(self.basis.T):
             plt.plot(i + basis)
-        plt.show()
+        if show:
+            plt.show()
 
         self._create_basis()  # reset basis
 
@@ -92,7 +94,7 @@ class CosineBasis2D(BaseBasis):
         super().__init__(Nx * Ny)
         self._create_basis()
 
-    def plot(self):
+    def plot(self, figsize: tuple = (6, 4), show: bool = False):
         import matplotlib.pyplot as plt
 
         factor = 10  # upsampling factor
@@ -103,13 +105,15 @@ class CosineBasis2D(BaseBasis):
         By._create_basis(_resolution=factor * self.Ny)
 
         basis_matrix = np.outer(Bx.basis.T, By.basis.T)
+        plt.figure(figsize=figsize)
         plt.imshow(basis_matrix, cmap="RdBu")
         for x in range(1, self.Ny):
             plt.axvline(x * factor * self.Ny, color="k", ls="--")
         for y in range(1, self.Nx):
             plt.axhline(y * factor * self.Nx, color="k", ls="--")
         plt.axis(False)
-        plt.show()
+        if show:
+            plt.show()
 
     def _create_basis(self) -> None:
         Bx = CosineBasis(self.Nx)
@@ -122,16 +126,18 @@ class PixelBasis(BaseBasis):
         super().__init__(N)
         self._create_basis()
 
-    def plot(self):
+    def plot(self, figsize: tuple = (6, 4), show: bool = False):
         import matplotlib.pyplot as plt
 
         x_fine = np.linspace(0, self.N, 1000)
+        plt.figure(figsize=figsize)
         for i in range(self.N):
             basis_fine = np.zeros_like(x_fine)
             basis_fine[np.argmin(np.abs(x_fine - i))] = 0.95
             plt.plot(x_fine, i + basis_fine)
 
-        plt.show()
+        if show:
+            plt.show()
 
     def _create_basis(self) -> None:
         self.basis = np.eye(self.N)
@@ -146,20 +152,22 @@ class PixelBasis2D(BaseBasis):
         super().__init__(Nx * Ny)
         self._create_basis()
 
-    def plot(self):
+    def plot(self, figsize: tuple = (6, 4), show: bool = False):
         import matplotlib.pyplot as plt
 
         Bx = PixelBasis(self.Nx)
         By = PixelBasis(self.Ny)
         basis_matrix = np.outer(Bx.basis, By.basis)
 
+        plt.figure(figsize=figsize)
         plt.imshow(basis_matrix, cmap="binary")
         for x in range(1, self.Ny):
             plt.axvline(x * self.Ny, color="k", ls="--")
         for y in range(1, self.Nx):
             plt.axhline(y * self.Nx, color="k", ls="--")
         plt.axis(False)
-        plt.show()
+        if show:
+            plt.show()
 
     def _create_basis(self) -> None:
         Bx = PixelBasis(self.Nx)

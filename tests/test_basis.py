@@ -110,15 +110,15 @@ def test_2D_basis_call(basis, Nx, Ny):
 if __name__ == "__main__":
     _N = 10
     cosine_basis = CosineBasis(_N)
-    cosine_basis.plot()
+    cosine_basis.plot(show=True)
 
     pixel_basis = PixelBasis(_N)
-    pixel_basis.plot()
+    pixel_basis.plot(show=True)
 
     _Nx = 5
     _Ny = 3
     cosine_basis = CosineBasis2D(_Nx, _Ny)
-    cosine_basis.plot()
+    cosine_basis.plot(show=True)
 
     pixel_basis = PixelBasis2D(_Nx, _Ny)
-    pixel_basis.plot()
+    pixel_basis.plot(show=True)
