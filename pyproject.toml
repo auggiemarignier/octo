@@ -21,6 +21,7 @@ ipykernel = "^6.25.2"
 
 [tool.poetry.group.docs.dependencies]
 sphinx-book-theme = "^1.0.1"
+myst-nb = "^0.17.2"
 
 [build-system]
 requires = ["poetry-core"]
