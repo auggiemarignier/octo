@@ -18,8 +18,9 @@ flake8 = "^6.1.0"
 ipykernel = "^6.25.2"
 
 
+
 [tool.poetry.group.docs.dependencies]
-sphinx = "^7.2.6"
+sphinx-book-theme = "^1.0.1"
 
 [build-system]
 requires = ["poetry-core"]
