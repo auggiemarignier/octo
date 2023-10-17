@@ -24,7 +24,7 @@ A complete synthetic example is shown in `examples/example.ipynb`.
 The main idea is to create individual basis objects and combine them into one.
 `octo.basis` contains implementations of 1D and 2D pixel and cosine basis functions.
 Once the bases have been constructed, compute the individual Jacobian matrices given the forward measurement operator, i.e. the mapping from image to data space.
-`octo.measurement` includes a simple path integration measurement operator.
+An example path integral operator is implemented in the example notebook.
 
 `octo.octo` contains the `OvercompleteBasis` class, which is the main workhorse of the package.
 It combines the individual bases to create an overall Jacobian, calculates data misfits and sparsity regularisation and their derivatives.
