@@ -1,4 +1,4 @@
-from octo.octo import OvercompleteBasis
+from octo.overcomplete import OvercompleteBasis
 from octo.basis import CosineBasis, PixelBasis
 import numpy as np
 from numpy.random import default_rng
