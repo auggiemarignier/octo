@@ -4,6 +4,18 @@ from typing import List
 
 
 class OvercompleteBasis:
+    """
+    Overcomplete basis class.
+    Combines bases and provides functions for optimisation
+
+    :param data: observed data to be fitted
+    :param bases: list of basis objects
+    :param regularisation: type of regularisation.  Default is l1. Options are ['l1', 'l2']
+    :param covariance: covariance matrix for data :math:`C_d`.  Default is identity matrix.
+    :param bweights: list of weights :math:`\\beta_k` for each basis.  Default is even weight for each basis. Sum to 1 is enforced.
+    :param rweight: Regularisation weight :math:`\mu`. Default is 1.0.
+    """
+
     def __init__(
         self,
         data: np.ndarray,
@@ -13,14 +25,7 @@ class OvercompleteBasis:
         bweights: List[float] = None,
         rweight: float = None,
     ) -> None:
-        """
-        data: observed data to be fitted
-        bases: list of basis objects
-        regularisation: type of regularisation.  Default is l1. Options are ['l1', 'l2']
-        covariance: covariance matrix for data.  Default is identity matrix.
-        bweights: list of weights for each basis.  Default is even weight for each basis. Sum to 1 is enforced.
-        rweight: Regularisation weight. Default is 1.0.
-        """
+        """ """
         self.data = data
         self.bases = bases
         self._check_jacobians()
@@ -44,37 +49,63 @@ class OvercompleteBasis:
 
     def cost(self, x: np.ndarray) -> float:
         """
-        x: proposed solution to be compared with observed data
+        Overall objective function to be optimised.
+        A combination of data misfit and regularisation.
+
+        .. math::
+
+            \Theta(x) = \chi(x) + \mu \ell_1(x)
+
+        :param x: proposed solution to be compared with observed data
         """
         return self.data_misfit(x) + self.reg(x)
 
     def cost_gradient(self, x: np.ndarray) -> np.ndarray:
         """
-        x: proposed solution to be compared with observed data
+        Gradient of overall objective function to be optimised.
+
+        :param x: proposed solution to be compared with observed data
         """
         return self.data_misfit_gradient(x) + self.reg_gradient(x)
 
     def data_misfit(self, x: np.ndarray) -> float:
         """
-        x: proposed solution to be compared with observed data
+        Squared data misfit between observed data and proposed solution, weighted by the inverse covariance matrix.
+
+        .. math::
+
+            \chi(x) = \\frac{1}{2} (d - Gx)^T C_d^{-1} (d - Gx)
+
+        :param x: proposed solution to be compared with observed data
         """
         misfit = self.data - self.jacobian @ x
         return misfit.T @ self.invcov @ misfit / 2.0
 
     def data_misfit_gradient(self, x: np.ndarray) -> np.ndarray:
         """
-        x: proposed solution to be compared with observed data
+        Gradient of squared data misfit between observed data and proposed solution.
+
+        :param x: proposed solution to be compared with observed data
         """
         return self.jacobian.T @ self.invcov @ (self.jacobian @ x - self.data)
 
     def l1_reg(self, x: np.ndarray) -> float:
         """
         L1 norm regularisation with a norm weight to account for different basis units
+
+        .. math::
+
+            \ell_1(x) = \sum_{k=1}^K \\beta_k \left\| C_d^{-1/2}G^k \\right\|_2\left\| x^k \\right\|_1
+
+        :param x: proposed solution
         """
         l1 = np.linalg.norm(self._split(x), 1, axis=1)[:, np.newaxis]
         return self.rweight * np.sum(self.bweights * self.l1_weighting_norms * l1)
 
     def l1_reg_gradient(self, x: np.ndarray) -> np.ndarray:
+        """
+        Gradient of L1 norm regularisation.
+        """
         split = self._split(x)
         l1_grads = np.sign(split)
         gradient = self.bweights * self.l1_weighting_norms * l1_grads

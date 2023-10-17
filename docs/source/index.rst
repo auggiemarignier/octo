@@ -27,7 +27,7 @@ Installation
    :caption: Modules
 
    modulesrst/basis.rst 
-   modulesrst/octo.rst
+   modulesrst/overcomplete.rst
 
 .. toctree::
    :maxdepth: 1
