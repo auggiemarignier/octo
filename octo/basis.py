@@ -4,33 +4,58 @@ from typing import Callable
 
 
 class BaseBasis:
+    """
+    Base class for basis functions.
+
+    :param N: number of basis functions
+    """
+
     def __init__(self, N: int) -> None:
         """
         N: number of basis functions
         """
         self.N = N
-        self.jacobian = None
+        self.basis = None  #: Matrix of basis functions. Each column is a basis function
+        self.jacobian = None  #: Jacobian of measurement operator
 
     def __call__(self, X: np.ndarray) -> np.ndarray:
         """
-        X is a vector of length N
-        self.basis is a matrix of shape (N, N) with each row representing a basis function
-        So transpose self.basis and matmul by X to get the linear combination of basis functions
+        Expand coefficients X in terms of basis functions
+
+        .. math::
+
+            f(x) = \sum_{i=0}^{N-1} X_i \phi_i(x)
+
+        :param X: vector of N coefficients
         """
+        # self.basis is a matrix of shape (N, N) with each column representing a basis function
         return self.basis @ X
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> np.ndarray:
+        """
+        Get the ith basis function
+
+        :param i: index of basis function
+        """
         return self.basis[:, i]
 
     def compute_jacobian(self, forward: Callable) -> None:
         """
-        forward is the measurment operator. It should take a vector of length N.
-        Since self.basis is (N, N), we need to loop through and apply forward to each column
+        Compute the action of a forward measurement operator on the basis functions
+
+        .. math::
+
+            J_{ij} = \int G_i(\phi_j(x)) dx
+
+        :param forward: measurement operator. Takes a vector of length N.
         """
         self.jacobian = np.vstack([forward(self.basis[:, i]) for i in range(self.N)]).T
 
     def _create_basis(self) -> None:
         """
+        To be implemented for each new basis class.
+        Should be called in __init__.
+
         Creates a matrix of basis functions of shape (N, N)
         self.basis[:, i] is the ith basis function
         i.e. each basis function is a column vector
@@ -39,7 +64,22 @@ class BaseBasis:
 
 
 class CosineBasis(BaseBasis):
-    def __init__(self, N: int, method="idct") -> None:
+    """
+    1D cosine basis functions
+
+    :param method: method for creating basis functions. Either "idct" (default) or "cos".
+        "idct" uses the :code:`scipy.fft.idct` function to create the basis functions.
+        "cos" uses the formula
+
+        .. math::
+
+            \phi_i(x) = \\frac{1}{\sqrt{N/2}} \cos \left( \\frac{i \pi (2n+1)}{2N} \\right)
+
+        where n = 0, 1, ..., N-1 and i = 0, 1, ..., N-1.
+        Both produce the same orthonormal basis
+    """
+
+    def __init__(self, N: int, method: str = "idct") -> None:
         super().__init__(N)
 
         if method not in ["idct", "cos"]:
@@ -51,6 +91,13 @@ class CosineBasis(BaseBasis):
         self._create_basis()
 
     def plot(self, figsize: tuple = (6, 4), show: bool = False):
+        """
+        Simple plotting routine.
+        Basis functions are upsampled by a factor of 10 for plotting.
+
+        :param figsize: figure size as per :matplotlib:
+        :param show: show the figure
+        """
         import matplotlib.pyplot as plt
 
         self._create_basis(_resolution=10 * self.N)
@@ -86,6 +133,13 @@ class CosineBasis(BaseBasis):
 
 
 class CosineBasis2D(BaseBasis):
+    """
+    2D cosine basis functions
+
+    :param Nx: number of basis functions in x direction
+    :param Ny: number of basis functions in y direction. If None, Ny = Nx.
+    """
+
     def __init__(self, Nx: int, Ny: int = None) -> None:
         if Ny is None:
             Ny = Nx
@@ -95,6 +149,14 @@ class CosineBasis2D(BaseBasis):
         self._create_basis()
 
     def plot(self, figsize: tuple = (6, 4), show: bool = False):
+        """
+        Simple plotting routine.
+        Basis functions are upsampled by a factor of 10 for plotting.
+        Figure is divided into Nx x Ny subplots, each being one basis function, although this is not how they are stored in the basis matrix.
+
+        :param figsize: figure size as per :matplotlib:
+        :param show: show the figure
+        """
         import matplotlib.pyplot as plt
 
         factor = 10  # upsampling factor
@@ -122,11 +184,21 @@ class CosineBasis2D(BaseBasis):
 
 
 class PixelBasis(BaseBasis):
+    """
+    1D pixel basis functions
+    """
+
     def __init__(self, N: int) -> None:
         super().__init__(N)
         self._create_basis()
 
     def plot(self, figsize: tuple = (6, 4), show: bool = False):
+        """
+        Simple plotting routine.
+
+        :param figsize: figure size as per :matplotlib:
+        :param show: show the figure
+        """
         import matplotlib.pyplot as plt
 
         x_fine = np.linspace(0, self.N, 1000)
@@ -144,6 +216,13 @@ class PixelBasis(BaseBasis):
 
 
 class PixelBasis2D(BaseBasis):
+    """
+    2D pixel basis functions
+
+    :param Nx: number of basis functions in x direction
+    :param Ny: number of basis functions in y direction. If None, Ny = Nx.
+    """
+
     def __init__(self, Nx: int, Ny: int = None) -> None:
         if Ny is None:
             Ny = Nx
@@ -153,6 +232,13 @@ class PixelBasis2D(BaseBasis):
         self._create_basis()
 
     def plot(self, figsize: tuple = (6, 4), show: bool = False):
+        """
+        Simple plotting routine.
+        Figure is divided into Nx x Ny subplots, each being one basis function, although this is not how they are stored in the basis matrix.
+
+        :param figsize: figure size as per :matplotlib:
+        :param show: show the figure
+        """
         import matplotlib.pyplot as plt
 
         Bx = PixelBasis(self.Nx)
