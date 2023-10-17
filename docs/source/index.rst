@@ -22,6 +22,10 @@ Installation
 
     $ pip install .
 
+
+Contents
+========
+
 .. toctree::
    :maxdepth: 1
    :caption: Modules
