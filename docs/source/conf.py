@@ -1,8 +1,8 @@
 import os
 import sys
 
-sys.path.insert(0, "/Users/u1138256/Documents/octo/octo")
-# from octo import __version__
+sys.path.insert(0, os.path.abspath("../../octo"))
+from octo import __version__
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -15,7 +15,7 @@ sys.path.insert(0, "/Users/u1138256/Documents/octo/octo")
 project = "octo"
 copyright = "2023, Auggie Marignier"
 author = "Auggie Marignier"
-version = "0.1.0"
+version = __version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
