@@ -23,10 +23,10 @@ A complete synthetic example is shown in `examples/example.ipynb`.
 
 The main idea is to create individual basis objects and combine them into one.
 `octo.basis` contains implementations of 1D and 2D pixel and cosine basis functions.
-Once the bases have been constructed, compute the individual Jacobian matrices given the forward measurement operator, i.e. the mapping from image to data space.
+Once the bases have been constructed, compute the individual kernel matrices given the forward measurement operator, i.e. the mapping from image to data space.
 An example path integral operator is implemented in the example notebook.
 
 `octo.octo` contains the `OvercompleteBasis` class, which is the main workhorse of the package.
-It combines the individual bases to create an overall Jacobian, calculates data misfits and sparsity regularisation and their derivatives.
+It combines the individual bases to create an overall kernel matrix, calculates data misfits and sparsity regularisation and their derivatives.
 `OvercompleteBasis.cost` is the function to be optimised, for example using `scipy.optimize.minimize`.
 `OvercompleteBasis.cost_gradient` may also be helpful for this.

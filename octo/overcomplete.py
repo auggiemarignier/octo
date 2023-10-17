@@ -28,8 +28,8 @@ class OvercompleteBasis:
         """ """
         self.data = data
         self.bases = bases
-        self._check_jacobians()
-        self._combine_jacobians()
+        self._check_kernels()
+        self._combine_kernels()
 
         self.bweights = bweights if bweights is not None else [1.0 for _ in bases]
         self._check_bweights()
@@ -78,7 +78,7 @@ class OvercompleteBasis:
 
         :param x: proposed solution to be compared with observed data
         """
-        misfit = self.data - self.jacobian @ x
+        misfit = self.data - self.kernel @ x
         return misfit.T @ self.invcov @ misfit / 2.0
 
     def data_misfit_gradient(self, x: np.ndarray) -> np.ndarray:
@@ -87,7 +87,7 @@ class OvercompleteBasis:
 
         :param x: proposed solution to be compared with observed data
         """
-        return self.jacobian.T @ self.invcov @ (self.jacobian @ x - self.data)
+        return self.kernel.T @ self.invcov @ (self.kernel @ x - self.data)
 
     def l1_reg(self, x: np.ndarray) -> float:
         """
@@ -111,12 +111,12 @@ class OvercompleteBasis:
         gradient = self.bweights * self.l1_weighting_norms * l1_grads
         return self.rweight * np.hstack(gradient)
 
-    def _combine_jacobians(self):
-        self.jacobian = np.hstack([b.jacobian for b in self.bases])
+    def _combine_kernels(self):
+        self.kernel = np.hstack([b.kernel for b in self.bases])
 
-    def _check_jacobians(self):
+    def _check_kernels(self):
         for basis in self.bases:
-            assert basis.jacobian is not None, "Jacobian not computed for basis"
+            assert basis.kernel is not None, "kernel not computed for basis"
 
     def _check_bweights(self):
         if len(self.bweights) != len(self.bases):
@@ -140,5 +140,5 @@ class OvercompleteBasis:
         self.l1_weighting_norms = np.zeros((len(self.bases), 1))
         for i, basis in enumerate(self.bases):
             self.l1_weighting_norms[i] = np.linalg.norm(
-                np.sqrt(self.invcov) @ basis.jacobian, 2
+                np.sqrt(self.invcov) @ basis.kernel, 2
             )

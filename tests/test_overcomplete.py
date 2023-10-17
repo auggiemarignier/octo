@@ -20,7 +20,7 @@ def N():
 def bases(N):
     _bases = [CosineBasis(N), PixelBasis(N)]
     for b in _bases:
-        b.compute_jacobian(forward)
+        b.compute_kernel(forward)
     return _bases
 
 
@@ -56,7 +56,7 @@ def test_overcomplete_init(data, N):
         )
 
     for b in bases:
-        b.compute_jacobian(forward)
+        b.compute_kernel(forward)
     overcomplete_basis = OvercompleteBasis(
         data, bases, bweights=bweights, rweight=rweight
     )
@@ -79,9 +79,9 @@ def test_overcomplete_cost(data, bases, mc, mp):
     assert cost == pytest.approx(expected)
 
 
-def test_overcomplete_combined_jacobian(data, bases, mc, mp):
+def test_overcomplete_combined_kernel(data, bases, mc, mp):
     overcomplete_basis = OvercompleteBasis(data, bases, rweight=0.0)
-    assert overcomplete_basis.jacobian.shape == (data.size, mc.size + mp.size)
+    assert overcomplete_basis.kernel.shape == (data.size, mc.size + mp.size)
 
 
 def test_data_misfit_gradient(data, bases, mc, mp):
@@ -98,15 +98,15 @@ def test_data_misfit_gradient(data, bases, mc, mp):
     # Calculate the expected misfit gradient basis by basis
     split = overcomplete_basis._split(x)
     expected_misfit = (
-        np.sum([b.jacobian @ _x for b, _x in zip(bases, split)], axis=0) - data
+        np.sum([b.kernel @ _x for b, _x in zip(bases, split)], axis=0) - data
     )
-    expected_gradient = np.hstack([b.jacobian.T @ expected_misfit for b in bases])
+    expected_gradient = np.hstack([b.kernel.T @ expected_misfit for b in bases])
     assert np.allclose(gradient, expected_gradient)
 
 
 def test_l1_gradient(data, bases, mc, mp):
     """
-    With Identity covariance operator, the weighting norm is just the norm of the basis jacboian.
+    With Identity covariance operator, the weighting norm is just the norm of the basis kernel.
     The l1 gradient is the signs of the coefficients (ignoring zeros).
     """
     # Generate a random input vector
@@ -127,7 +127,7 @@ def test_l1_gradient(data, bases, mc, mp):
         overcomplete_basis._split(x),
     ):
         norm = np.linalg.norm(
-            np.sqrt(np.linalg.inv(overcomplete_basis.covariance)) @ b.jacobian, 2
+            np.sqrt(np.linalg.inv(overcomplete_basis.covariance)) @ b.kernel, 2
         )
         l1_grad = overcomplete_basis.rweight * bw * norm * np.sign(_x)
         l1_grads.append(l1_grad)

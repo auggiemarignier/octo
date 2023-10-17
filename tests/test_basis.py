@@ -60,29 +60,29 @@ def test_2D_basis_orthonormal(basis, Nx, Ny):
 
 
 @pytest.mark.parametrize("basis", [PixelBasis, CosineBasis])
-def test_1D_basis_jacboian(basis, N):
+def test_1D_basis_kernel(basis, N):
     ndata = 12
 
     def _forward(X):
         return np.eye(ndata, N).dot(X)
 
     _basis = basis(N)
-    _basis.compute_jacobian(_forward)
+    _basis.compute_kernel(_forward)
 
-    assert _basis.jacobian.shape == (ndata, N)
+    assert _basis.kernel.shape == (ndata, N)
 
 
 @pytest.mark.parametrize("basis", [PixelBasis2D, CosineBasis2D])
-def test_2D_basis_jacboian(basis, Nx, Ny):
+def test_2D_basis_kernel(basis, Nx, Ny):
     ndata = 12
 
     def _forward(X):
         return np.eye(ndata, Nx * Ny).dot(X)
 
     _basis = basis(Nx, Ny)
-    _basis.compute_jacobian(_forward)
+    _basis.compute_kernel(_forward)
 
-    assert _basis.jacobian.shape == (ndata, Nx * Ny)
+    assert _basis.kernel.shape == (ndata, Nx * Ny)
 
 
 @pytest.mark.parametrize("basis", [PixelBasis, CosineBasis])

@@ -16,7 +16,9 @@ class BaseBasis:
         """
         self.N = N
         self.basis = None  #: Matrix of basis functions. Each column is a basis function
-        self.jacobian = None  #: Jacobian of measurement operator
+        self.kernel = (
+            None  #: kernel matrix of measurement operator applied to basis functions
+        )
 
     def __call__(self, X: np.ndarray) -> np.ndarray:
         """
@@ -39,17 +41,17 @@ class BaseBasis:
         """
         return self.basis[:, i]
 
-    def compute_jacobian(self, forward: Callable) -> None:
+    def compute_kernel(self, forward: Callable) -> None:
         """
         Compute the action of a forward measurement operator on the basis functions
 
         .. math::
 
-            J_{ij} = \int G_i(\phi_j(x)) dx
+            G_{ij} = \int \mathcal{F}_i(\phi_j(x)) dx
 
         :param forward: measurement operator. Takes a vector of length N.
         """
-        self.jacobian = np.vstack([forward(self.basis[:, i]) for i in range(self.N)]).T
+        self.kernel = np.vstack([forward(self.basis[:, i]) for i in range(self.N)]).T
 
     def _create_basis(self) -> None:
         """
