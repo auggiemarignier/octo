@@ -15,10 +15,27 @@ The approach implemented here was first described in `Turunctur et al., (2023) <
 Pixel and Cosine basis functions are implemented in 1D and 2D, and the package is designed to be easily extended to other bases.
 A main class, :class:`octo.Octo`, is used to combine the bases together and perform the tomographic reconstruction.
 
+Installation
+============
+
+.. code-block:: bash
+
+    $ pip install .
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :caption: Modules
+
+   modulesrst/basis.rst 
+   modulesrst/octo.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Examples
+
+.. toctree::
+   :maxdepth: 1
+   :caption: About
 
 
 
