@@ -107,6 +107,25 @@ def test_2D_basis_call(basis, Nx, Ny):
     assert np.allclose(_basis(x), expected)
 
 
+@pytest.mark.parametrize(
+    "basis2D,basis1D", [(PixelBasis2D, PixelBasis), (CosineBasis2D, CosineBasis)]
+)
+def test_2D_reshaping(basis2D, basis1D, Nx, Ny):
+    # test how to reshape a column vector into a 2D matrix
+    _basis = basis2D(Nx, Ny)
+    k = rng.integers(low=0, high=Nx * Ny)
+    _b = _basis[k].reshape(Ny, Nx)
+
+    _basis1Dx = basis1D(Nx)
+    _basis1Dy = basis1D(Ny)
+    _outer = np.outer(_basis1Dy.basis.T, _basis1Dx.basis.T)
+    i = k // Nx  # row index
+    j = k - i * Nx  # column index
+    expected = _outer[i * Ny : (i + 1) * Ny, j * Nx : (j + 1) * Nx]
+
+    assert np.allclose(_b, expected)
+
+
 if __name__ == "__main__":
     _N = 10
     cosine_basis = CosineBasis(_N)
