@@ -168,13 +168,13 @@ class CosineBasis2D(BaseBasis):
         By = CosineBasis(self.Ny)
         By._create_basis(_resolution=factor * self.Ny)
 
-        basis_matrix = np.outer(Bx.basis.T, By.basis.T)
+        basis_matrix = np.outer(By.basis.T, Bx.basis.T)
         plt.figure(figsize=figsize)
         plt.imshow(basis_matrix, cmap="RdBu")
-        for x in range(1, self.Ny):
-            plt.axvline(x * factor * self.Ny, color="k", ls="--")
-        for y in range(1, self.Nx):
-            plt.axhline(y * factor * self.Nx, color="k", ls="--")
+        for x in range(1, self.Nx):
+            plt.axvline(x * factor * self.Nx, color="k", ls="--")
+        for y in range(1, self.Ny):
+            plt.axhline(y * factor * self.Ny, color="k", ls="--")
         plt.axis(False)
         if show:
             plt.show()
@@ -245,14 +245,14 @@ class PixelBasis2D(BaseBasis):
 
         Bx = PixelBasis(self.Nx)
         By = PixelBasis(self.Ny)
-        basis_matrix = np.outer(Bx.basis, By.basis)
+        basis_matrix = np.outer(By.basis, Bx.basis)
 
         plt.figure(figsize=figsize)
         plt.imshow(basis_matrix, cmap="binary")
-        for x in range(1, self.Ny):
-            plt.axvline(x * self.Ny, color="k", ls="--")
-        for y in range(1, self.Nx):
-            plt.axhline(y * self.Nx, color="k", ls="--")
+        for x in range(1, self.Nx):
+            plt.axvline(x * self.Nx, color="k", ls="--")
+        for y in range(1, self.Ny):
+            plt.axhline(y * self.Ny, color="k", ls="--")
         plt.axis(False)
         if show:
             plt.show()
