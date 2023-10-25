@@ -182,7 +182,13 @@ class CosineBasis2D(BaseBasis):
     def _create_basis(self) -> None:
         Bx = CosineBasis(self.Nx)
         By = CosineBasis(self.Ny)
-        self.basis = _unravel(np.outer(Bx.basis.T, By.basis.T), self.Nx, self.Ny)
+        # Take outer product of 1D basis functions to get 2D basis functions.
+        # outer[i, j] = A[i] * B[j]
+        # Since the basis functions are stored as column vectors, we need to transpose the basis matrices before taking the outer product
+        # The outer product needs to have Ny rows (axis=0) and Nx columns (axis=1), so we take outer(By, Bx)
+        outer = np.outer(By.basis.T, Bx.basis.T)
+        # We then unravel the matrix such that each 2D basis function is a column vector
+        self.basis = _unravel(outer, self.Ny, self.Nx)
 
 
 class PixelBasis(BaseBasis):
@@ -243,12 +249,8 @@ class PixelBasis2D(BaseBasis):
         """
         import matplotlib.pyplot as plt
 
-        Bx = PixelBasis(self.Nx)
-        By = PixelBasis(self.Ny)
-        basis_matrix = np.outer(By.basis, Bx.basis)
-
         plt.figure(figsize=figsize)
-        plt.imshow(basis_matrix, cmap="binary")
+        plt.imshow(_reravel(self.basis, self.Ny, self.Nx), cmap="binary")
         for x in range(1, self.Nx):
             plt.axvline(x * self.Nx, color="k", ls="--")
         for y in range(1, self.Ny):
@@ -260,7 +262,13 @@ class PixelBasis2D(BaseBasis):
     def _create_basis(self) -> None:
         Bx = PixelBasis(self.Nx)
         By = PixelBasis(self.Ny)
-        self.basis = _unravel(np.outer(Bx.basis.T, By.basis.T), self.Nx, self.Ny)
+        # Take outer product of 1D basis functions to get 2D basis functions.
+        # outer[i, j] = A[i] * B[j]
+        # Since the basis functions are stored as column vectors, we need to transpose the basis matrices before taking the outer product
+        # The outer product needs to have Ny rows (axis=0) and Nx columns (axis=1), so we take outer(By, Bx)
+        outer = np.outer(By.basis.T, Bx.basis.T)
+        # We then unravel the matrix such that each 2D basis function is a column vector
+        self.basis = _unravel(outer, self.Ny, self.Nx)
 
 
 def _unravel(basis_matrix: np.ndarray, nx: int, ny: int) -> np.ndarray:
