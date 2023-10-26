@@ -50,6 +50,7 @@ class BaseBasis:
             G_{ij} = \int \mathcal{F}_i(\phi_j(x)) dx
 
         :param forward: measurement operator. Takes a vector of length N.
+        :param n_jobs: number jobs to iterate through the basis functions in parallel. If 0, run serially.
         """
         if n_jobs:
             from multiprocessing import Pool
