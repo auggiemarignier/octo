@@ -114,6 +114,8 @@ class OvercompleteBasis:
     def l1_reg_gradient(self, x: np.ndarray) -> np.ndarray:
         """
         Gradient of L1 norm regularisation.
+
+        Note: The gradient of the L1 norm is not defined at 0.  In this case, the gradient is set to 0.  This will kill the optimisation for that parameter.  Given that the L1 norm is used to promote sparsity, a parameter value of 0 is the aim of the optimisation anyway. However if some parameters are correlated, the optimisation may not be able to find a solution.
         """
         split = self._split(x)
         l1_grads = np.sign(split)
