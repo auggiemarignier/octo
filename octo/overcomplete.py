@@ -42,6 +42,7 @@ class OvercompleteBasis:
             self.reg = self.l1_reg
             self.reg_gradient = self.l1_reg_gradient
             self._precompute_l1_wieghting_norms()
+            self._precompute_cost_hessian()
         elif regularisation == "l2":
             raise NotImplementedError("L2 regularisation not yet implemented")
         else:
@@ -67,6 +68,14 @@ class OvercompleteBasis:
         :param x: proposed solution to be compared with observed data
         """
         return self.data_misfit_gradient(x) + self.reg_gradient(x)
+
+    def cost_hessian(self, x: np.ndarray) -> np.ndarray:
+        """
+        Hessian of overall objective function to be optimised.
+
+        :param x: proposed solution to be compared with observed data
+        """
+        return self._cost_hessian
 
     def data_misfit(self, x: np.ndarray) -> float:
         """
@@ -142,3 +151,9 @@ class OvercompleteBasis:
             self.l1_weighting_norms[i] = np.linalg.norm(
                 np.sqrt(self.invcov) @ basis.kernel, 2
             )
+
+    def _precompute_cost_hessian(self):
+        # Hessian is constant so can be precomputed
+        # L2 datamisfit hessian = G^TC^{-1}G
+        # L1 regularisation hessian = 0
+        self._cost_hessian = self.kernel.T @ self.invcov @ self.kernel
