@@ -137,7 +137,7 @@ def test_parallel_kernel_construction(basis, Nx, Ny):
     basis_serial = basis(Nx, Ny)
     basis_serial.compute_kernel(parallel_forward, n_jobs=0)
 
-    basis_parallel = CosineBasis2D(Nx, Ny)
+    basis_parallel = basis(Nx, Ny)
     basis_parallel.compute_kernel(parallel_forward, n_jobs=4)
 
     assert np.allclose(basis_serial.kernel, basis_parallel.kernel)
