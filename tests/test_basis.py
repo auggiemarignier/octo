@@ -126,6 +126,20 @@ def test_2D_reshaping(basis2D, basis1D, Nx, Ny):
     assert np.allclose(_b, expected)
 
 
+@pytest.mark.parametrize("basis", [PixelBasis2D, CosineBasis2D])
+def test_parallel_kernel_construction(basis, Nx, Ny):
+    def _forward(X):
+        return np.eye(12, Nx * Ny).dot(X)
+
+    basis_serial = basis(Nx, Ny)
+    basis_serial.compute_kernel(_forward, n_jobs=0)
+
+    basis_parallel = CosineBasis2D(Nx, Ny)
+    basis_parallel.compute_kernel(_forward, n_jobs=4)
+
+    assert np.allclose(basis_serial.kernel, basis_parallel.kernel)
+
+
 if __name__ == "__main__":
     _N = 10
     cosine_basis = CosineBasis(_N)
