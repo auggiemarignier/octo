@@ -41,7 +41,7 @@ class BaseBasis:
         """
         return self.basis[:, i]
 
-    def compute_kernel(self, forward: Callable) -> None:
+    def compute_kernel(self, forward: Callable, n_jobs: int = 0) -> None:
         """
         Compute the action of a forward measurement operator on the basis functions
 
@@ -51,7 +51,15 @@ class BaseBasis:
 
         :param forward: measurement operator. Takes a vector of length N.
         """
-        self.kernel = np.vstack([forward(self.basis[:, i]) for i in range(self.N)]).T
+        if n_jobs:
+            from multiprocessing import Pool
+
+            with Pool(n_jobs) as pool:
+                self.kernel = np.vstack(pool.map(forward, self.basis.T)).T
+        else:
+            self.kernel = np.vstack(
+                [forward(self.basis[:, i]) for i in range(self.N)]
+            ).T
 
     def _create_basis(self) -> None:
         """
