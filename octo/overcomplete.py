@@ -28,6 +28,7 @@ class OvercompleteBasis:
         """ """
         self.data = data
         self.bases = bases
+        self.basis = np.hstack([b.basis for b in self.bases])
         self._check_kernels()
         self._combine_kernels()
 
@@ -47,6 +48,26 @@ class OvercompleteBasis:
             raise NotImplementedError("L2 regularisation not yet implemented")
         else:
             raise ValueError(f"Unknown regularisation {regularisation}")
+
+    def __call__(self, x: np.ndarray) -> np.ndarray:
+        """
+        Expand coefficients x in terms of basis functions
+
+        .. math::
+
+            f(x) = \sum_{k=1}^K x^k \phi^k(x)
+
+        :param x: vector of N coefficients
+        """
+        return self.basis @ x
+
+    def __getitem__(self, i: int) -> np.ndarray:
+        """
+        Get the ith basis function
+
+        :param i: index of basis function
+        """
+        return self.basis[:, i]
 
     def cost(self, x: np.ndarray) -> float:
         """
