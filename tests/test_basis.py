@@ -22,10 +22,10 @@ def Ny():
 
 
 def _is_othornomal_basis(basis_matrix):
-    N = basis_matrix.shape[0]
+    N = basis_matrix.shape[1]
     for i in range(N):
         for j in range(N):
-            dot_product = np.dot(basis_matrix[i, :], basis_matrix[j, :])
+            dot_product = np.dot(basis_matrix[:, i], basis_matrix[:, j])
             expected = 1.0 if i == j else 0.0
             assert np.isclose(dot_product, expected), f"{i,j}"
 
