@@ -107,6 +107,20 @@ def test_2D_basis_call(basis, Nx, Ny):
     assert np.allclose(_basis(x), expected)
 
 
+@pytest.mark.parametrize("basis", [PixelBasis, CosineBasis])
+def test_1D_basis_length(basis, N):
+    _basis = basis(N)
+    assert len(_basis) == N
+    assert len(_basis) == _basis.N
+
+
+@pytest.mark.parametrize("basis", [PixelBasis2D, CosineBasis2D])
+def test_2D_basis_length(basis, Nx, Ny):
+    _basis = basis(Nx, Ny)
+    assert len(_basis) == Nx * Ny
+    assert len(_basis) == _basis.N
+
+
 @pytest.mark.parametrize(
     "basis2D,basis1D", [(PixelBasis2D, PixelBasis), (CosineBasis2D, CosineBasis)]
 )

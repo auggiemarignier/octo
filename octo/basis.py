@@ -14,7 +14,7 @@ class BaseBasis:
         """
         N: number of basis functions
         """
-        self.N = N
+        self._N = N
         self.basis = None  #: Matrix of basis functions. Each column is a basis function
         self.kernel = (
             None  #: kernel matrix of measurement operator applied to basis functions
@@ -32,6 +32,13 @@ class BaseBasis:
         """
         # self.basis is a matrix of shape (N, N) with each column representing a basis function
         return self.basis @ X
+
+    def __len__(self) -> int:
+        """
+        Number of basis functions
+        """
+        self._N = self.basis.shape[1]  # update N in case basis has been changed
+        return self.N
 
     def __getitem__(self, i: int) -> np.ndarray:
         """
@@ -61,6 +68,14 @@ class BaseBasis:
             self.kernel = np.vstack(
                 [forward(self.basis[:, i]) for i in range(self.N)]
             ).T
+
+    @property
+    def N(self):
+        return self._N
+
+    @N.setter
+    def N(self, N):
+        self._N = N
 
     def _create_basis(self) -> None:
         """
